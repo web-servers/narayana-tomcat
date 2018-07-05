@@ -42,6 +42,10 @@
         </plugin>
       </plugins>
     </build>
+    <properties>
+      <version.org.apache.tomcat>9.0.10</version.org.apache.tomcat>
+      <version.org.jboss.narayana>5.8.2.Final</version.org.jboss.narayana>
+    </properties>
     <modules>
         <module>tomcat-jta</module>
     </modules>

@@ -171,11 +171,11 @@ public class PoolingDataSource implements DataSource {
         }
     }
 
-    private ManagedDataSource createManagedDataSource(final DataSourceXAConnectionFactory xaConnectionFactory,
+    private ManagedDataSource<PoolableConnection> createManagedDataSource(final DataSourceXAConnectionFactory xaConnectionFactory,
             final XADataSource xaDataSource,
             final Map<String, Object> environment) {
         final PoolableConnectionFactory poolableConnectionFactory = getPoolableConnectionFactory(xaConnectionFactory, environment);
-        final GenericObjectPoolConfig objectPoolConfig = getObjectPoolConfig(environment);
+        final GenericObjectPoolConfig<PoolableConnection> objectPoolConfig = getObjectPoolConfig(environment);
         final AbandonedConfig abandonedConfig = getAbandonedConfig(environment);
 
         final GenericObjectPool<PoolableConnection> objectPool =
@@ -188,8 +188,8 @@ public class PoolingDataSource implements DataSource {
         return new ManagedDataSource<>(objectPool, xaConnectionFactory.getTransactionRegistry());
     }
 
-    private GenericObjectPoolConfig getObjectPoolConfig(final Map<String, Object> environment) {
-        final GenericObjectPoolConfig objectPoolConfig = new GenericObjectPoolConfig();
+    private GenericObjectPoolConfig<PoolableConnection> getObjectPoolConfig(final Map<String, Object> environment) {
+        final GenericObjectPoolConfig<PoolableConnection> objectPoolConfig = new GenericObjectPoolConfig<>();
         setFromEnvironment("maxTotal", environment, (value) -> objectPoolConfig.setMaxTotal((int) value));
         setFromEnvironment("minIdle", environment, (value) -> objectPoolConfig.setMinIdle((int) value));
         setFromEnvironment("maxIdle", environment, (value) -> objectPoolConfig.setMaxIdle((int) value));
@@ -224,6 +224,7 @@ public class PoolingDataSource implements DataSource {
         return abandonedConfig;
     }
 
+    @SuppressWarnings("unchecked")
     private PoolableConnectionFactory getPoolableConnectionFactory(final DataSourceXAConnectionFactory xaDsConnectionFactory,
                                                                    final Map<String, Object> environment) {
         final PoolableConnectionFactory poolableConnectionFactory =

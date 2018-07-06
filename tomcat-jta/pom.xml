@@ -30,7 +30,6 @@
         <version>5.8.2.Final</version>
     </parent>
     <artifactId>narayana-tomcat</artifactId>
-    <version>5.0.1.Final-SNAPSHOT</version>
     <name>Narayana: Tomcat JTA integration</name>
     <properties>
         <jvm.args.byteman>

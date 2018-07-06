@@ -48,6 +48,7 @@
     </properties>
     <modules>
         <module>tomcat-jta</module>
+        <module>tools</module>
     </modules>
     <profiles>
         <profile>

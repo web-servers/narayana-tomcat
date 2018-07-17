@@ -116,8 +116,8 @@ public class PoolingDataSource implements DataSource {
         if (databaseProvider == DatabaseProvider.H2) {
             xaConnectionFactory = new DataSourceXAConnectionFactory(tm, xaDataSource);
         } else {
-            final String username = driverProperties.getProperty("user");
-            final String password = driverProperties.getProperty("password");
+            final String username = getUsernameFromDriverProperties();
+            final String password = getPasswordFromDriverProperties();
             xaConnectionFactory = new DataSourceXAConnectionFactory(tm, xaDataSource, username, password);
         }
 
@@ -129,7 +129,14 @@ public class PoolingDataSource implements DataSource {
             XADataSource xaDataSource = (XADataSource) Class.forName(className).newInstance();
             String url = driverProperties.getProperty("url", driverProperties.getProperty("URL"));
 
-            if (!(className.startsWith("com.ibm.db2") || className.startsWith("com.sybase"))) {
+            if (databaseProvider == DatabaseProvider.H2) {
+                xaDataSource.getClass().getMethod("setUser", new Class[]{String.class})
+                        .invoke(xaDataSource, getUsernameFromDriverProperties());
+                xaDataSource.getClass().getMethod("setPassword", new Class[]{String.class})
+                        .invoke(xaDataSource, getPasswordFromDriverProperties());
+            }
+
+            if (databaseProvider == DatabaseProvider.DB2 || databaseProvider == DatabaseProvider.SYBASE) {
                 try {
                     xaDataSource.getClass().getMethod("setUrl", new Class[]{String.class}).invoke(xaDataSource, url);
                 } catch (NoSuchMethodException ex) {
@@ -265,6 +272,14 @@ public class PoolingDataSource implements DataSource {
         }
 
         xaRecoveryModule.addXAResourceRecoveryHelper(TransactionalDataSourceFactory.getXAResourceRecoveryHelper(xaDataSource, recoveryModuleProperties));
+    }
+
+    private String getUsernameFromDriverProperties() {
+        return driverProperties.getProperty("user");
+    }
+
+    private String getPasswordFromDriverProperties() {
+        return driverProperties.getProperty("password");
     }
 
     public void close() {

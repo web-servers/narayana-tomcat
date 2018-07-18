@@ -61,6 +61,7 @@ public class PoolingDataSource implements DataSource {
     private String uniqueName;
     private String className;
     private ManagedDataSource<?> managedDataSource;
+    private DatabaseProvider databaseProvider;
 
     /**
      * @param uniqueName Data Source unique name. Serves for registration to JNDI.
@@ -85,6 +86,8 @@ public class PoolingDataSource implements DataSource {
     }
 
     public void init(final Map<String, Object> environment)  {
+        this.databaseProvider = DatabaseProvider.fromDriverClassName(className);
+
         final XADataSource xaDataSource = createXaDataSource();
 
         final TransactionManager tm = com.arjuna.ats.jta.TransactionManager.transactionManager();
@@ -110,19 +113,15 @@ public class PoolingDataSource implements DataSource {
     private DataSourceXAConnectionFactory resolveDataSourceXAConnectionFactory(final TransactionManager tm,
                                                                                final XADataSource xaDataSource) {
         final DataSourceXAConnectionFactory xaConnectionFactory;
-        if (isH2()) {
+        if (databaseProvider == DatabaseProvider.H2) {
             xaConnectionFactory = new DataSourceXAConnectionFactory(tm, xaDataSource);
         } else {
-            final String username = driverProperties.getProperty("user");
-            final String password = driverProperties.getProperty("password");
+            final String username = getUsernameFromDriverProperties();
+            final String password = getPasswordFromDriverProperties();
             xaConnectionFactory = new DataSourceXAConnectionFactory(tm, xaDataSource, username, password);
         }
 
         return xaConnectionFactory;
-    }
-
-    private boolean isH2() {
-        return className.startsWith("org.h2");
     }
 
     private XADataSource createXaDataSource() {
@@ -130,7 +129,14 @@ public class PoolingDataSource implements DataSource {
             XADataSource xaDataSource = (XADataSource) Class.forName(className).newInstance();
             String url = driverProperties.getProperty("url", driverProperties.getProperty("URL"));
 
-            if (!(className.startsWith("com.ibm.db2") || className.startsWith("com.sybase"))) {
+            if (databaseProvider == DatabaseProvider.H2) {
+                xaDataSource.getClass().getMethod("setUser", new Class[]{String.class})
+                        .invoke(xaDataSource, getUsernameFromDriverProperties());
+                xaDataSource.getClass().getMethod("setPassword", new Class[]{String.class})
+                        .invoke(xaDataSource, getPasswordFromDriverProperties());
+            }
+
+            if (databaseProvider == DatabaseProvider.DB2 || databaseProvider == DatabaseProvider.SYBASE) {
                 try {
                     xaDataSource.getClass().getMethod("setUrl", new Class[]{String.class}).invoke(xaDataSource, url);
                 } catch (NoSuchMethodException ex) {
@@ -155,12 +161,12 @@ public class PoolingDataSource implements DataSource {
         try {
             xaDataSource.getClass().getMethod("setServerName", new Class[]{String.class}).invoke(xaDataSource, driverProperties.getProperty("serverName"));
             xaDataSource.getClass().getMethod("setDatabaseName", new Class[]{String.class}).invoke(xaDataSource, driverProperties.getProperty("databaseName"));
-            if (className.startsWith("com.ibm.db2")) {
+            if (databaseProvider == DatabaseProvider.DB2) {
                 xaDataSource.getClass().getMethod("setDriverType", new Class[]{int.class}).invoke(xaDataSource, 4);
                 xaDataSource.getClass().getMethod("setPortNumber", new Class[]{int.class}).invoke(xaDataSource, Integer.valueOf(driverProperties.getProperty("portNumber")));
                 xaDataSource.getClass().getMethod("setResultSetHoldability", new Class[]{int.class}).invoke(xaDataSource, 1);
                 xaDataSource.getClass().getMethod("setDowngradeHoldCursorsUnderXa", new Class[]{boolean.class}).invoke(xaDataSource, true);
-            } else if (className.startsWith("com.sybase")) {
+            } else if (databaseProvider == DatabaseProvider.SYBASE) {
                 xaDataSource.getClass().getMethod("setPortNumber", new Class[]{int.class}).invoke(xaDataSource, Integer.valueOf(driverProperties.getProperty("portNumber")));
                 xaDataSource.getClass().getMethod("setPassword", new Class[]{String.class}).invoke(xaDataSource, driverProperties.getProperty("password"));
                 xaDataSource.getClass().getMethod("setUser", new Class[]{String.class}).invoke(xaDataSource, driverProperties.getProperty("user"));
@@ -266,6 +272,14 @@ public class PoolingDataSource implements DataSource {
         }
 
         xaRecoveryModule.addXAResourceRecoveryHelper(TransactionalDataSourceFactory.getXAResourceRecoveryHelper(xaDataSource, recoveryModuleProperties));
+    }
+
+    private String getUsernameFromDriverProperties() {
+        return driverProperties.getProperty("user");
+    }
+
+    private String getPasswordFromDriverProperties() {
+        return driverProperties.getProperty("password");
     }
 
     public void close() {

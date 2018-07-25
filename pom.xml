@@ -47,8 +47,8 @@
       <version.org.jboss.narayana>5.8.2.Final</version.org.jboss.narayana>
     </properties>
     <modules>
-        <module>tomcat-jta</module>
         <module>tools</module>
+        <module>tomcat-jta</module>
     </modules>
     <profiles>
         <profile>

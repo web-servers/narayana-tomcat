@@ -25,12 +25,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.jboss.narayana</groupId>
-        <artifactId>narayana-all</artifactId>
-        <version>5.8.2.Final</version>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-parent</artifactId>
+        <version>28</version>
     </parent>
     <groupId>org.jboss.narayana.tomcat</groupId>
     <artifactId>tomcat-all</artifactId>
+    <version>5.0.1.Final-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Narayana: Tomcat integration</name>
     <build>
@@ -39,12 +40,27 @@
           <inherited>false</inherited>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
+	  <version>${version.org.sonatype.plugins.nexus-staging-maven-plugin}</version>
         </plugin>
       </plugins>
     </build>
     <properties>
       <version.org.apache.tomcat>9.0.10</version.org.apache.tomcat>
       <version.org.jboss.narayana>5.8.2.Final</version.org.jboss.narayana>
+      <version.org.jboss.spec.javax.transaction>1.0.0.Final</version.org.jboss.spec.javax.transaction>
+      <version.org.jboss.logging.jboss-logging>3.2.1.Final</version.org.jboss.logging.jboss-logging>
+      <version.org.jboss.byteman>4.0.4</version.org.jboss.byteman>
+      <version.org.jboss.jboss-transaction-spi>7.6.0.Final</version.org.jboss.jboss-transaction-spi>
+      <version.org.jboss.resteasy>3.1.4.Final</version.org.jboss.resteasy>
+      <version.org.jboss.arquillian.core>1.1.7.Final</version.org.jboss.arquillian.core>
+      <version.org.jboss.arquillian.container.tomcat>1.0.1.Final</version.org.jboss.arquillian.container.tomcat>
+      <version.org.jboss.shrinkwrap.resolver>2.2.2</version.org.jboss.shrinkwrap.resolver>
+      <version.junit>4.11</version.junit>
+      <version.javax.servlet>3.0.1</version.javax.servlet>
+      <version.com.h2database>1.4.195</version.com.h2database>
+      <version.postgresql>9.0-801.jdbc4</version.postgresql>
+      <version.com.github.docker-java>3.0.14</version.com.github.docker-java>
+      <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.6.6</version.org.sonatype.plugins.nexus-staging-maven-plugin>
     </properties>
     <modules>
         <module>tools</module>

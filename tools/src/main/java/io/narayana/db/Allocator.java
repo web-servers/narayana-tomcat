@@ -27,8 +27,20 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.DriverPropertyInfo;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Statement;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -100,6 +112,93 @@ public abstract class Allocator {
             }
         }
         // still port not ready, failing
+        return false;
+    }
+
+    /**
+     * Loads proper driver dynamically.
+     * Credit: http://www.kfu.com/%7Ensayer/Java/dyn-jdbc.html
+     * <p>
+     * Executes a simple SELECT 1 statement to verify the DB actually does something.
+     *
+     * @param dbUrl            JDBC connection URL
+     * @param user             DB user
+     * @param pass             DB password
+     * @param driverClass      e.g. org.postgresql.Driver
+     * @param pathToDriverJar  Either a downloaded driver jar or a one from ShrinkWrap Maven resolver
+     * @param overallTimeoutMs How long do we keep trying with 1000ms pause in between
+     * @return true on success
+     * @throws ClassNotFoundException Fix the driver class name
+     * @throws MalformedURLException  Fix the driver jar path
+     */
+    public static boolean executeTestStatement(
+            final String dbUrl, final String user, final String pass, final String driverClass, final String pathToDriverJar, final long overallTimeoutMs)
+            throws ClassNotFoundException, MalformedURLException, IllegalAccessException, InstantiationException, SQLException {
+
+        final String sql = "SELECT 1;";
+        final long timestamp = System.currentTimeMillis();
+        final URLClassLoader ucl = new URLClassLoader(new URL[]{new URL(String.format("jar:file:%s!/", pathToDriverJar))});
+        final Driver driver = (Driver) Class.forName(driverClass, true, ucl).newInstance();
+
+        DriverManager.registerDriver(new Driver() {
+            @Override
+            public Connection connect(String url, Properties info) throws SQLException {
+                return driver.connect(url, info);
+            }
+
+            @Override
+            public boolean acceptsURL(String url) throws SQLException {
+                return driver.acceptsURL(url);
+            }
+
+            @Override
+            public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
+                return driver.getPropertyInfo(url, info);
+            }
+
+            @Override
+            public int getMajorVersion() {
+                return driver.getMajorVersion();
+            }
+
+            @Override
+            public int getMinorVersion() {
+                return driver.getMinorVersion();
+            }
+
+            @Override
+            public boolean jdbcCompliant() {
+                return driver.jdbcCompliant();
+            }
+
+            @Override
+            public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+                return driver.getParentLogger();
+            }
+        });
+
+        while (System.currentTimeMillis() - timestamp < overallTimeoutMs) {
+            try (
+                    final Connection conn = DriverManager.getConnection(dbUrl, user, pass);
+                    final Statement stmt = conn.createStatement();
+                    final ResultSet rs = stmt.executeQuery(sql)
+            ) {
+                if (rs.next()) {
+                    return true;
+                }
+            } catch (Exception e) {
+                long remainingTime = overallTimeoutMs - (System.currentTimeMillis() - timestamp);
+                LOGGER.log(Level.SEVERE, String.format("DB not ready to answer the test statement: %s. Remaining time: %d, approx %d attempts.",
+                        sql, remainingTime, remainingTime / 1000), e);
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.log(Level.FINE, "Waiting for DB to execute test statement was interrupted.", e);
+            }
+        }
+
         return false;
     }
 

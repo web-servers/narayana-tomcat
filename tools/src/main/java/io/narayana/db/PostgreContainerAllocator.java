@@ -185,15 +185,6 @@ public class PostgreContainerAllocator extends Allocator {
                         LOGGER.info(String.format("The database container has successfully opened TCP socket %s:%d", containerDatabaseBindHostIp, port));
                     }
 
-                    // TODO - replace with a logical check - an SQL statement.
-                    // Sometimes it takes a jiffy to avoid "PSQLException: the database system is starting up"
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        LOGGER.log(Level.SEVERE, "Interrupted.", e);
-                    }
-
                     completed.set(true);
                 }
 

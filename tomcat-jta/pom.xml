@@ -302,7 +302,7 @@
                                         <!-- The undermentioned timeout accounts both for pulling image and starting container up to opened socket. -->
                                         <container.timeout.waiting.for.tcp>240000</container.timeout.waiting.for.tcp>
 
-                                        <db.timeout.waiting.for.heartbeat.statement>30000</db.timeout.waiting.for.heartbeat.statement>
+                                        <db.timeout.waiting.for.heartbeat.statement>120000</db.timeout.waiting.for.heartbeat.statement>
                                         <db.timeout.heartbeat.statement>SELECT 1;</db.timeout.heartbeat.statement>
 
                                         <!-- dballocator properties -->

@@ -34,6 +34,7 @@ import javax.sql.ConnectionEventListener;
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAResource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -51,6 +52,7 @@ public class TransactionalDataSourceFactory implements ObjectFactory {
 
     private static final String PROP_TRANSACTION_MANAGER = "transactionManager";
     private static final String PROP_XA_DATASOURCE = "xaDataSource";
+    private static final String PROP_TRANSACTION_SYNCHRONIZATION_REGISTRY = "transactionSynchronizationRegistry";
     private static final String PROP_USERNAME = "username";
     private static final String PROP_PASSWORD = "password";
 
@@ -141,6 +143,7 @@ public class TransactionalDataSourceFactory implements ObjectFactory {
 
         final TransactionManager transactionManager = (TransactionManager) getReferenceObject(ref, context, PROP_TRANSACTION_MANAGER);
         final XADataSource xaDataSource = (XADataSource) getReferenceObject(ref, context, PROP_XA_DATASOURCE);
+        final TransactionSynchronizationRegistry tsr = (TransactionSynchronizationRegistry) getReferenceObject(ref, context, PROP_TRANSACTION_SYNCHRONIZATION_REGISTRY);
 
         if (transactionManager != null && xaDataSource != null) {
             /*
@@ -163,6 +166,7 @@ public class TransactionalDataSourceFactory implements ObjectFactory {
 
             mds.setTransactionManager(transactionManager);
             mds.setXaDataSourceInstance(xaDataSource);
+            mds.setTransactionSynchronizationRegistry(tsr);
 
             if (initialSize != null) {
                 mds.setInitialSize(Integer.parseInt(initialSize));

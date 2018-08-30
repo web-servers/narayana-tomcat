@@ -27,12 +27,13 @@
     <parent>
         <groupId>org.jboss.narayana.tomcat</groupId>
         <artifactId>tomcat-all</artifactId>
-        <version>5.8.2.Final</version>
+        <version>5.0.1.Final-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>narayana-tomcat</artifactId>
-    <version>5.0.1.Final-SNAPSHOT</version>
     <name>Narayana: Tomcat JTA integration</name>
     <properties>
+        <jvm.args.debug></jvm.args.debug>
         <jvm.args.byteman>
             -Dorg.jboss.byteman.verbose -Djboss.modules.system.pkgs=org.jboss.byteman -Dorg.jboss.byteman.transform.all
             -javaagent:${project.build.directory}/lib/byteman.jar=script:${project.build.directory}/test-classes/scripts.btm,listener:true
@@ -155,8 +156,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jboss.narayana</groupId>
-            <version>${version.org.jboss.narayana}</version>
+            <groupId>org.jboss.narayana.tomcat</groupId>
+            <version>${project.version}</version>
             <artifactId>test-utils</artifactId>
             <scope>test</scope>
         </dependency>
@@ -254,6 +255,7 @@
                                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                                     <forkCount>0</forkCount>
                                     <systemPropertyVariables combine.children="append">
+                                        <project.version>${project.version}</project.version>
                                         <project.build.directory>${project.build.directory}</project.build.directory>
                                         <version.org.jboss.narayana>${version.org.jboss.narayana}</version.org.jboss.narayana>
                                         <version.org.jboss.resteasy>${version.org.jboss.resteasy}</version.org.jboss.resteasy>

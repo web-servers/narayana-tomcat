@@ -94,11 +94,12 @@ public class PostgreContainerAllocator extends Allocator {
         final String containerTimeoutWaitingForTcp = getProp("container.timeout.waiting.for.tcp");
         final long timeout = Long.parseLong(containerTimeoutWaitingForTcp);
         if (timeout > TimeUnit.MINUTES.toMillis(30) || timeout < 500) {
-            throw new IllegalArgumentException("container.timeout.waiting.for.tcp out of expected range [500, 30*60*1000]");
+            throw new IllegalArgumentException("container.timeout.waiting.for.tcp out of expected range [500, 30*60*1000] ms.");
         }
         final String containerDatabaseDriverArtifact = getProp("container.database.driver.artifact");
         final String containerDatabaseDriverClass = getProp("container.database.driver.class");
         final String containerDatabaseDatasourceClassXa = getProp("container.database.datasource.class.xa");
+        final String heartBeatStatement = getProp("db.timeout.heartbeat.statement");
 
         final AtomicBoolean completed = new AtomicBoolean(false);
 
@@ -185,15 +186,6 @@ public class PostgreContainerAllocator extends Allocator {
                         LOGGER.info(String.format("The database container has successfully opened TCP socket %s:%d", containerDatabaseBindHostIp, port));
                     }
 
-                    // TODO - replace with a logical check - an SQL statement.
-                    // Sometimes it takes a jiffy to avoid "PSQLException: the database system is starting up"
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        LOGGER.log(Level.SEVERE, "Interrupted.", e);
-                    }
-
                     completed.set(true);
                 }
 
@@ -237,6 +229,7 @@ public class PostgreContainerAllocator extends Allocator {
                 .dsDriverClassName(containerDatabaseDriverClass)
                 .tdsType("javax.sql.XADataSource")
                 .dbDriverArtifact(containerDatabaseDriverArtifact)
+                .heartBeatStatement(heartBeatStatement)
                 .build();
     }
 

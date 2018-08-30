@@ -299,8 +299,11 @@
                                         <container.database.name>narayana_db</container.database.name>
                                         <container.database.bind.host.ip>127.0.0.1</container.database.bind.host.ip>
                                         <container.database.bind.host.port>5432</container.database.bind.host.port>
-                                        <!-- The undermentioned timeout accounts both for pulling image and starting container. Might be split into two timeouts in future. -->
+                                        <!-- The undermentioned timeout accounts both for pulling image and starting container up to opened socket. -->
                                         <container.timeout.waiting.for.tcp>240000</container.timeout.waiting.for.tcp>
+
+                                        <db.timeout.waiting.for.heartbeat.statement>30000</db.timeout.waiting.for.heartbeat.statement>
+                                        <db.timeout.heartbeat.statement>SELECT 1;</db.timeout.heartbeat.statement>
 
                                         <!-- dballocator properties -->
                                         <dballocator.host.port>http://your.db.allocator.example.com:8080</dballocator.host.port>

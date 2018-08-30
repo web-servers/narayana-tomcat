@@ -4,6 +4,7 @@ import io.narayana.db.Allocator;
 import io.narayana.db.DB;
 import io.narayana.db.DBAllocator;
 import io.narayana.db.H2Allocator;
+import io.narayana.db.PostgreContainerAllocator;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
@@ -29,6 +30,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,6 +70,29 @@ public abstract class AbstractCase {
             prepareContextXML();
             final File[] dbDriver = (dba instanceof DBAllocator) ? new File[]{new File(db.dbDriverArtifact)} :
                     Maven.resolver().resolve(db.dbDriverArtifact).withTransitivity().asFile();
+
+            // Check if the DB is actually ready to execute statements if we are the ones starting it.
+            if (dba instanceof PostgreContainerAllocator && StringUtils.isNotBlank(db.heartBeatStatement)) {
+                try {
+                    if (!Allocator.executeTestStatement(db, dbDriver[0].getAbsolutePath())) {
+                        dba.deallocateDB(db);
+                        fail("The database system is not ready to execute statements. Check DB logs, please.");
+                    }
+                } catch (ClassNotFoundException e) {
+                    dba.deallocateDB(db);
+                    fail("The class %s cannot be loaded. " + e.getMessage());
+                } catch (IllegalAccessException e) {
+                    dba.deallocateDB(db);
+                    fail("Dynamic loading of Driver class is probably not possible with this JVM setup. " + e.getMessage());
+                } catch (InstantiationException e) {
+                    dba.deallocateDB(db);
+                    fail("Dynamic Driver class instantiation failed. " + e.getMessage());
+                } catch (SQLException e) {
+                    dba.deallocateDB(db);
+                    fail("Driver cannot be used. " + e.getMessage());
+                }
+            }
+
             assertNotNull("WebArchive was not created by @Deployment before @BeforeClass. Arquillian lifecycle config error?", webArchive);
             webArchive.addAsLibraries(dbDriver);
             webArchive.addAsManifestResource("context.xml", "context.xml");

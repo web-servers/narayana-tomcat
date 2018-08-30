@@ -27,8 +27,21 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.DriverPropertyInfo;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Statement;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -100,6 +113,102 @@ public abstract class Allocator {
             }
         }
         // still port not ready, failing
+        return false;
+    }
+
+    /**
+     * Loads proper driver dynamically.
+     * Credit: http://www.kfu.com/%7Ensayer/Java/dyn-jdbc.html
+     * <p>
+     * Executes a simple SELECT 1 statement to verify the DB actually does something.
+     *
+     * @param db, used as:
+     *            dbUrl            JDBC connection URL
+     *            user             DB user
+     *            pass             DB password
+     *            driverClass      e.g. org.postgresql.Driver
+     *            pathToDriverJar  Either a downloaded driver jar or a one from ShrinkWrap Maven resolver
+     *            overallTimeoutMs How long do we keep trying with 1000ms pause in between
+     * @return true on success
+     * @throws ClassNotFoundException Fix the driver class name
+     * @throws MalformedURLException  Fix the driver jar path
+     */
+    public static boolean executeTestStatement(final DB db, final String pathToDriverJar)
+            throws ClassNotFoundException, MalformedURLException, IllegalAccessException, InstantiationException, SQLException {
+
+        final String overallTimeout = getProp("db.timeout.waiting.for.heartbeat.statement");
+        final long overallTimeoutMs = Long.parseLong(overallTimeout);
+        if (overallTimeoutMs > TimeUnit.MINUTES.toMillis(5) || overallTimeoutMs < 100) {
+            throw new IllegalArgumentException("db.timeout.waiting.for.heartbeat.statement out of expected range [100, 5*60*1000] ms.");
+        }
+        if (StringUtils.isBlank(db.heartBeatStatement)) {
+            throw new IllegalArgumentException("db.heartBeatStatement on DB object must be set," +
+                    "check your *Allocator class and db.timeout.heartbeat.statement property.");
+        }
+
+        final long timestamp = System.currentTimeMillis();
+        final URLClassLoader ucl = new URLClassLoader(new URL[]{new URL(String.format("jar:file:%s!/", pathToDriverJar))});
+        final Driver driver = (Driver) Class.forName(db.dsDriverClassName, true, ucl).newInstance();
+
+        DriverManager.registerDriver(new Driver() {
+            @Override
+            public Connection connect(String url, Properties info) throws SQLException {
+                return driver.connect(url, info);
+            }
+
+            @Override
+            public boolean acceptsURL(String url) throws SQLException {
+                return driver.acceptsURL(url);
+            }
+
+            @Override
+            public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
+                return driver.getPropertyInfo(url, info);
+            }
+
+            @Override
+            public int getMajorVersion() {
+                return driver.getMajorVersion();
+            }
+
+            @Override
+            public int getMinorVersion() {
+                return driver.getMinorVersion();
+            }
+
+            @Override
+            public boolean jdbcCompliant() {
+                return driver.jdbcCompliant();
+            }
+
+            @Override
+            public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+                return driver.getParentLogger();
+            }
+        });
+
+        while (System.currentTimeMillis() - timestamp < overallTimeoutMs) {
+            try (
+                    final Connection conn = DriverManager.getConnection(db.dsUrl, db.dsUser, db.dsPassword);
+                    final Statement stmt = conn.createStatement();
+                    final ResultSet rs = stmt.executeQuery(db.heartBeatStatement)
+            ) {
+                if (rs.next()) {
+                    return true;
+                }
+            } catch (Exception e) {
+                long remainingTime = overallTimeoutMs - (System.currentTimeMillis() - timestamp);
+                LOGGER.log(Level.SEVERE, String.format("DB not ready to answer the test statement: %s. Remaining time: %d, approx %d attempts.",
+                        db.heartBeatStatement, remainingTime, remainingTime / 1000), e);
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.log(Level.FINE, "Waiting for DB to execute test statement was interrupted.", e);
+            }
+        }
+
         return false;
     }
 

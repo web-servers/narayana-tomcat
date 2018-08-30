@@ -43,6 +43,7 @@ public class DB {
     public final String tdsUrl;
     public final String tdsDriverClassName;
     public final String dbDriverArtifact;
+    public final String heartBeatStatement;
     public final Properties allocationProperties;
 
     public static class Builder {
@@ -61,6 +62,7 @@ public class DB {
         private String tdsUrl;
         private String tdsDriverClassName;
         private String dbDriverArtifact;
+        private String heartBeatStatement;
         private Properties allocationProperties;
 
         Builder dsType(String dsType) {
@@ -138,6 +140,11 @@ public class DB {
             return this;
         }
 
+        Builder heartBeatStatement(String heartBeatStatement) {
+            this.heartBeatStatement = heartBeatStatement;
+            return this;
+        }
+
         Builder allocationProperties(Properties allocationProperties) {
             this.allocationProperties = allocationProperties;
             return this;
@@ -164,6 +171,7 @@ public class DB {
         this.tdsUrl = builder.tdsUrl;
         this.tdsDriverClassName = builder.tdsDriverClassName;
         this.dbDriverArtifact = builder.dbDriverArtifact;
+        this.heartBeatStatement = builder.heartBeatStatement;
         this.allocationProperties = builder.allocationProperties;
     }
 }

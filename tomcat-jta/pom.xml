@@ -61,7 +61,6 @@
         <dependency>
             <groupId>org.jboss.narayana.arjunacore</groupId>
             <artifactId>arjuna</artifactId>
-            <scope>test</scope>
             <version>${version.org.jboss.narayana}</version>
         </dependency>
         <dependency>

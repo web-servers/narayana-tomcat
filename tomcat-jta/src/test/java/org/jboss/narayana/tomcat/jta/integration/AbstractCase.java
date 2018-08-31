@@ -24,6 +24,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -54,6 +55,7 @@ public abstract class AbstractCase {
     static Allocator dba;
     static DB db;
     private static File[] libFiles;
+    static String dbDriverAbsolutePath;
     static String catalinaHome;
 
     /**
@@ -70,28 +72,9 @@ public abstract class AbstractCase {
             prepareContextXML();
             final File[] dbDriver = (dba instanceof DBAllocator) ? new File[]{new File(db.dbDriverArtifact)} :
                     Maven.resolver().resolve(db.dbDriverArtifact).withTransitivity().asFile();
+            dbDriverAbsolutePath = dbDriver[0].getAbsolutePath();
 
-            // Check if the DB is actually ready to execute statements if we are the ones starting it.
-            if (dba instanceof PostgreContainerAllocator && StringUtils.isNotBlank(db.heartBeatStatement)) {
-                try {
-                    if (!Allocator.executeTestStatement(db, dbDriver[0].getAbsolutePath())) {
-                        dba.deallocateDB(db);
-                        fail("The database system is not ready to execute statements. Check DB logs, please.");
-                    }
-                } catch (ClassNotFoundException e) {
-                    dba.deallocateDB(db);
-                    fail("The class %s cannot be loaded. " + e.getMessage());
-                } catch (IllegalAccessException e) {
-                    dba.deallocateDB(db);
-                    fail("Dynamic loading of Driver class is probably not possible with this JVM setup. " + e.getMessage());
-                } catch (InstantiationException e) {
-                    dba.deallocateDB(db);
-                    fail("Dynamic Driver class instantiation failed. " + e.getMessage());
-                } catch (SQLException e) {
-                    dba.deallocateDB(db);
-                    fail("Driver cannot be used. " + e.getMessage());
-                }
-            }
+            executeTestStatement(dbDriverAbsolutePath, db, dba);
 
             assertNotNull("WebArchive was not created by @Deployment before @BeforeClass. Arquillian lifecycle config error?", webArchive);
             webArchive.addAsLibraries(dbDriver);
@@ -212,6 +195,38 @@ public abstract class AbstractCase {
             fail("Failed to parse, update and serialize web app's context.xml for data source configuration.");
         } catch (IOException e) {
             fail("Failed to locate context.xml to process.");
+        }
+    }
+
+    /**
+     * Check if the DB is actually ready to execute statements if we are the ones starting it.
+     *
+     * @param dbDriverAbsolutePath Absolute path to a jar
+     * @param db                   database description immutable structure
+     * @param dba                  allocator instance
+     */
+    static void executeTestStatement(final String dbDriverAbsolutePath, final DB db, final Allocator dba) {
+        if (dba instanceof PostgreContainerAllocator && StringUtils.isNotBlank(db.heartBeatStatement)) {
+            try {
+                if (!Allocator.executeTestStatement(db, dbDriverAbsolutePath)) {
+                    dba.deallocateDB(db);
+                    fail("The database system is not ready to execute statements. Check DB logs, please.");
+                }
+            } catch (ClassNotFoundException e) {
+                dba.deallocateDB(db);
+                fail("The class %s cannot be loaded. " + e.getMessage());
+            } catch (IllegalAccessException e) {
+                dba.deallocateDB(db);
+                fail("Dynamic loading of Driver class is probably not possible with this JVM setup. " + e.getMessage());
+            } catch (InstantiationException e) {
+                dba.deallocateDB(db);
+                fail("Dynamic Driver class instantiation failed. " + e.getMessage());
+            } catch (SQLException e) {
+                dba.deallocateDB(db);
+                fail("Driver cannot be used. " + e.getMessage());
+            } catch (MalformedURLException e) {
+                fail("Driver jar path seems invalid. " + e.getMessage());
+            }
         }
     }
 }

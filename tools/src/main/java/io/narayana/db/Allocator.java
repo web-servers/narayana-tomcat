@@ -197,7 +197,7 @@ public abstract class Allocator {
                     return true;
                 }
             } catch (Exception e) {
-                long remainingTime = overallTimeoutMs - (System.currentTimeMillis() - timestamp);
+                long remainingTime = Math.max(0, overallTimeoutMs - (System.currentTimeMillis() - timestamp));
                 LOGGER.log(Level.SEVERE, String.format("DB not ready to answer the test statement: %s. Remaining time: %d, approx %d attempts.",
                         db.heartBeatStatement, remainingTime, remainingTime / 1000), e);
             }

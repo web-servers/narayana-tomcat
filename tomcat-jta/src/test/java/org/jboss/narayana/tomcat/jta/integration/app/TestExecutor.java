@@ -124,7 +124,7 @@ public class TestExecutor {
 
                 // This is necessary for H2 to fully reset the connection
                 try {
-                    Field _connField = DelegatingConnection.class.getDeclaredField("_conn");
+                    Field _connField = DelegatingConnection.class.getDeclaredField("connection");
                     _connField.setAccessible(true);
                     Object o = _connField.get(connection);
                     o = _connField.get(o);

@@ -129,6 +129,7 @@ public class BaseITCase extends AbstractCase {
         deployer.undeploy("Basic-app");
         controller.stop("tomcat");
         assertTrue("Failed to clean DB, check logs for the root cause.", dba.cleanDB(db));
+        executeTestStatement(dbDriverAbsolutePath, db, dba);
     }
 
     @Test

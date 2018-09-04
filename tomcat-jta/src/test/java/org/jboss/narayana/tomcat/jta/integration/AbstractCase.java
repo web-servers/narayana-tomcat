@@ -171,6 +171,7 @@ public abstract class AbstractCase {
             tsDbSource.setAttribute("password", db.dsPassword);
             tsDbSource.setAttribute("transactionManager", "TransactionManager");
             tsDbSource.setAttribute("xaDataSource", "myDataSource");
+            tsDbSource.setAttribute("transactionSynchronizationRegistry", "TransactionSynchronizationRegistry");
             tsDbSource.setAttribute("description", "Transactional Driver Data Source");
             // Connection pool settings
             tsDbSource.setAttribute("factory", "org.jboss.narayana.tomcat.jta.TransactionalDataSourceFactory");

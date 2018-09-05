@@ -71,7 +71,7 @@ public class BaseITCase extends AbstractCase {
 
     private static final String EXECUTOR_URL = "http://localhost:8080/" + DEPLOYMENT_NAME + "/" + BASE_PATH + "/";
 
-    private static final String NARAYANA_DEPENDENCY = "org.jboss.narayana.tomcat:narayana-tomcat:"
+    private static final String NARAYANA_DEPENDENCY = "org.jboss.integration:narayana-tomcat:"
             + System.getProperty("project.version");
 
     private static final String RESTEASY_DEPENDENCY = "org.jboss.resteasy:resteasy-servlet-initializer:"

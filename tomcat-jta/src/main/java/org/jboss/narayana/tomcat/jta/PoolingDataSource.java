@@ -16,6 +16,23 @@
 
 package org.jboss.narayana.tomcat.jta;
 
+import com.arjuna.ats.internal.jta.recovery.arjunacore.XARecoveryModule;
+import com.arjuna.ats.jta.common.jtaPropertyManager;
+import org.apache.tomcat.dbcp.dbcp2.PoolableConnection;
+import org.apache.tomcat.dbcp.dbcp2.PoolableConnectionFactory;
+import org.apache.tomcat.dbcp.dbcp2.Utils;
+import org.apache.tomcat.dbcp.dbcp2.managed.DataSourceXAConnectionFactory;
+import org.apache.tomcat.dbcp.dbcp2.managed.ManagedDataSource;
+import org.apache.tomcat.dbcp.pool2.impl.AbandonedConfig;
+import org.apache.tomcat.dbcp.pool2.impl.GenericObjectPool;
+import org.apache.tomcat.dbcp.pool2.impl.GenericObjectPoolConfig;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import javax.sql.XADataSource;
+import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -28,35 +45,16 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-import javax.sql.XADataSource;
-import javax.transaction.TransactionManager;
-import javax.transaction.TransactionSynchronizationRegistry;
-
-import org.apache.tomcat.dbcp.dbcp2.PoolableConnection;
-import org.apache.tomcat.dbcp.dbcp2.PoolableConnectionFactory;
-import org.apache.tomcat.dbcp.dbcp2.Utils;
-import org.apache.tomcat.dbcp.dbcp2.managed.DataSourceXAConnectionFactory;
-import org.apache.tomcat.dbcp.dbcp2.managed.ManagedDataSource;
-import org.apache.tomcat.dbcp.pool2.impl.AbandonedConfig;
-import org.apache.tomcat.dbcp.pool2.impl.GenericObjectPool;
-import org.apache.tomcat.dbcp.pool2.impl.GenericObjectPoolConfig;
-
-import com.arjuna.ats.internal.jta.recovery.arjunacore.XARecoveryModule;
-import com.arjuna.ats.jta.common.jtaPropertyManager;
-
 /**
  * Wrapper for actual Pooling Data Source provided by tomcat DBCP library. This class offers data source with
  * XA transactions and connection pooling capabilities.
- * */
+ */
 public class PoolingDataSource implements DataSource {
 
     private static final String PROP_USERNAME = "username";
     private static final String PROP_PASSWORD = "password";
 
-    private static final Logger logger = Logger.getLogger(PoolingDataSource.class.getSimpleName()); 
+    private static final Logger logger = Logger.getLogger(PoolingDataSource.class.getSimpleName());
 
     private Properties driverProperties = new Properties();
     private String uniqueName;
@@ -65,9 +63,9 @@ public class PoolingDataSource implements DataSource {
     private DatabaseProvider databaseProvider;
 
     /**
-     * @param uniqueName Data Source unique name. Serves for registration to JNDI.
+     * @param uniqueName  Data Source unique name. Serves for registration to JNDI.
      * @param dsClassName Name of a class implementing {@link XADataSource} available in a JDBC driver on a classpath.
-     * */
+     */
     public PoolingDataSource(final String uniqueName, final String dsClassName) {
         this.uniqueName = uniqueName;
         this.className = dsClassName;
@@ -75,8 +73,9 @@ public class PoolingDataSource implements DataSource {
 
     /**
      * For backward compatibility
-     * */
-    public PoolingDataSource() {}
+     */
+    public PoolingDataSource() {
+    }
 
     public Properties getDriverProperties() {
         return driverProperties;
@@ -86,7 +85,7 @@ public class PoolingDataSource implements DataSource {
         init(new HashMap<>());
     }
 
-    public void init(final Map<String, Object> environment)  {
+    public void init(final Map<String, Object> environment) {
         this.databaseProvider = DatabaseProvider.fromDriverClassName(className);
 
         final XADataSource xaDataSource = createXaDataSource();
@@ -142,7 +141,7 @@ public class PoolingDataSource implements DataSource {
                 try {
                     xaDataSource.getClass().getMethod("setUrl", new Class[]{String.class}).invoke(xaDataSource, url);
                 } catch (NoSuchMethodException ex) {
-                    logger.info("Unable to find \"setUrl\" method in db driver JAR. Trying \"setURL\" " );
+                    logger.info("Unable to find \"setUrl\" method in db driver JAR. Trying \"setURL\" ");
                     xaDataSource.getClass().getMethod("setURL", new Class[]{String.class}).invoke(xaDataSource, url);
                 } catch (InvocationTargetException ex) {
                     logger.info("Driver does not support setURL and setUrl method.");
@@ -180,8 +179,8 @@ public class PoolingDataSource implements DataSource {
     }
 
     private ManagedDataSource<PoolableConnection> createManagedDataSource(final DataSourceXAConnectionFactory xaConnectionFactory,
-            final XADataSource xaDataSource,
-            final Map<String, Object> environment) {
+                                                                          final XADataSource xaDataSource,
+                                                                          final Map<String, Object> environment) {
         final PoolableConnectionFactory poolableConnectionFactory = getPoolableConnectionFactory(xaConnectionFactory, environment);
         final GenericObjectPoolConfig<PoolableConnection> objectPoolConfig = getObjectPoolConfig(environment);
         final AbandonedConfig abandonedConfig = getAbandonedConfig(environment);
@@ -243,7 +242,7 @@ public class PoolingDataSource implements DataSource {
         setFromEnvironment("disconnectionSqlCodes", environment, (value) -> poolableConnectionFactory.setDisconnectionSqlCodes((Collection<String>) value));
         setFromEnvironment("fastFailValidation", environment, (value) -> poolableConnectionFactory.setFastFailValidation((boolean) value));
         setFromEnvironment("defaultTransactionIsolation", environment, (value) -> poolableConnectionFactory.setDefaultTransactionIsolation((int) value));
-        setFromEnvironment("defaultCatalog", environment, (value) -> poolableConnectionFactory.setDefaultCatalog((String)value));
+        setFromEnvironment("defaultCatalog", environment, (value) -> poolableConnectionFactory.setDefaultCatalog((String) value));
         setFromEnvironment("cacheState", environment, (value) -> poolableConnectionFactory.setCacheState((boolean) value));
         return poolableConnectionFactory;
     }

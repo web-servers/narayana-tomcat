@@ -20,8 +20,8 @@
   ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -79,8 +79,8 @@
             <version>${version.org.jboss.jboss-transaction-spi}</version>
             <exclusions>
                 <exclusion>
-                   <groupId>org.jboss.spec.javax.transaction</groupId>
-                   <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+                    <groupId>org.jboss.spec.javax.transaction</groupId>
+                    <artifactId>jboss-transaction-api_1.2_spec</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -161,10 +161,10 @@
             <artifactId>test-utils</artifactId>
             <scope>test</scope>
         </dependency>
-	<dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-	    <version>${version.com.h2database}</version>
+            <version>${version.com.h2database}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -177,36 +177,36 @@
     <build>
         <plugins>
             <plugin>
-              <inherited>false</inherited>
-              <groupId>org.sonatype.plugins</groupId>
-              <artifactId>nexus-staging-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                  <archive>
-                    <manifestEntries>
-                      <arjuna-properties-file>jbossts-properties.xml</arjuna-properties-file>
-                    </manifestEntries>
-                  </archive>
+                    <archive>
+                        <manifestEntries>
+                            <arjuna-properties-file>jbossts-properties.xml</arjuna-properties-file>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
                 <executions>
-                  <execution>
-                    <id>create-test-jar</id>
-                    <goals>
-                      <goal>test-jar</goal>
-                    </goals>
-                  </execution>
+                    <execution>
+                        <id>create-test-jar</id>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-		     <includes>
-			 <include>**/Test*.java</include>
-		     </includes>
+                    <includes>
+                        <include>**/Test*.java</include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>
@@ -342,22 +342,22 @@
             </properties>
         </profile>
         <profile>
-          <id>release</id>
-          <build>
-            <plugins>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <executions>
-                  <execution>
-                    <id>default-install</id>
-                    <phase>install</phase>
-                  </execution>
-                </executions>
-                <inherited>false</inherited>
-              </plugin>
-            </plugins>
-          </build>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-install</id>
+                                <phase>install</phase>
+                            </execution>
+                        </executions>
+                        <inherited>false</inherited>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

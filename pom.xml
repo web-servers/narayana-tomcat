@@ -34,16 +34,6 @@
     <version>1.0.0.Final-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Narayana: Tomcat integration</name>
-    <build>
-        <plugins>
-            <plugin>
-                <inherited>false</inherited>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>${version.org.sonatype.plugins.nexus-staging-maven-plugin}</version>
-            </plugin>
-        </plugins>
-    </build>
     <properties>
         <version.org.apache.tomcat>9.0.11</version.org.apache.tomcat>
         <version.org.jboss.narayana>5.8.2.Final</version.org.jboss.narayana>
@@ -61,11 +51,63 @@
         <version.postgresql>9.0-801.jdbc4</version.postgresql>
         <version.com.github.docker-java>3.0.14</version.com.github.docker-java>
         <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.6.6</version.org.sonatype.plugins.nexus-staging-maven-plugin>
+        <version.checkstyle>8.5</version.checkstyle>
+        <version.org.wildfly.checkstyle-config>1.0.7.Final</version.org.wildfly.checkstyle-config>
+
+        <!-- Checkstyle configuration -->
+        <linkXRef>false</linkXRef>
     </properties>
     <modules>
         <module>tools</module>
         <module>tomcat-jta</module>
     </modules>
+    <build>
+        <plugins>
+            <plugin>
+                <inherited>false</inherited>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${version.org.sonatype.plugins.nexus-staging-maven-plugin}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${version.checkstyle.plugin}</version>
+                <executions>
+                    <execution>
+                        <id>check-style</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.wildfly.checkstyle</groupId>
+                        <artifactId>wildfly-checkstyle-config</artifactId>
+                        <version>${version.org.wildfly.checkstyle-config}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>wildfly-checkstyle/checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <excludes>**/*$logger.java,**/*$bundle.java</excludes>
+                    <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+                    <useFile></useFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.wildfly.checkstyle</groupId>
+            <artifactId>wildfly-checkstyle-config</artifactId>
+            <version>${version.org.wildfly.checkstyle-config}</version>
+        </dependency>
+    </dependencies>
     <profiles>
         <profile>
             <id>release</id>

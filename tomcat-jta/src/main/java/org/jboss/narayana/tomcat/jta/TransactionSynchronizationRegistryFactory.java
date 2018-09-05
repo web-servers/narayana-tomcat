@@ -31,7 +31,7 @@ import java.util.Hashtable;
 
 /**
  * Object factory to create instances of {@link javax.transaction.TransactionSynchronizationRegistry}.
- * 
+ *
  * @author <a href="mailto:gytis@redhat.com">Gytis Trikleris</a>
  */
 public class TransactionSynchronizationRegistryFactory implements ObjectFactory {
@@ -39,13 +39,13 @@ public class TransactionSynchronizationRegistryFactory implements ObjectFactory 
     /**
      * User internal factory method to instantiate new or reuse existing instance of
      * {@link javax.transaction.TransactionSynchronizationRegistry}.
-     * 
+     *
      * @param obj
      * @param name
      * @param nameCtx
      * @param environment
      * @return instance of {@link javax.transaction.TransactionSynchronizationRegistry} or {@code null} if instantiation has
-     *         failed.
+     * failed.
      */
     @Override
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment) {

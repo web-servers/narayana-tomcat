@@ -22,8 +22,6 @@
 
 package io.narayana.db;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * @author <a href="mailto:karm@redhat.com">Michal Karm Babacek</a>
  */

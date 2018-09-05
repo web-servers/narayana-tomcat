@@ -170,9 +170,9 @@ public class TestExecutor {
 
     private boolean doesEntryExist(Connection connection, String entry) throws SQLException, NamingException {
         String query = "SELECT COUNT(*) FROM test WHERE value='" + entry + "'";
-        try{
-             Statement statement = connection.createStatement();
-             ResultSet result = statement.executeQuery(query);
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet result = statement.executeQuery(query);
             return result.next() && result.getInt(1) > 0;
         } catch (SQLException e) {
             LOGGER.log(Level.WARNING, e, () -> String.format("Cannot get result when querying entry '%s'", entry));

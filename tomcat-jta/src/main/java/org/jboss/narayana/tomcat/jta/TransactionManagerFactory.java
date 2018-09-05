@@ -31,7 +31,7 @@ import java.util.Hashtable;
 
 /**
  * Object factory to create instances of {@link javax.transaction.TransactionManager}.
- * 
+ *
  * @author <a href="mailto:gytis@redhat.com">Gytis Trikleris</a>
  */
 public class TransactionManagerFactory implements ObjectFactory {
@@ -39,7 +39,7 @@ public class TransactionManagerFactory implements ObjectFactory {
     /**
      * User internal factory method to instantiate new or reuse existing instance of
      * {@link javax.transaction.TransactionManager}.
-     * 
+     *
      * @param obj
      * @param name
      * @param nameCtx

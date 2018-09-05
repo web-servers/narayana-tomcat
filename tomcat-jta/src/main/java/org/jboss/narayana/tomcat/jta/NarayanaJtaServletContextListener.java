@@ -84,7 +84,7 @@ public class NarayanaJtaServletContextListener implements ServletContextListener
      * </ul>
      * <p>
      * After setup recovery manager, transaction status manager, and transaction reaper are started.
-     * 
+     *
      * @param servletContextEvent containing the ServletContext that is being initialized
      */
     @Override
@@ -102,7 +102,7 @@ public class NarayanaJtaServletContextListener implements ServletContextListener
     /**
      * First, stop recovery manager, transaction status manager, and transaction reaper. Then, remove transactional driver from
      * jdbc driver manager's list.
-     * 
+     *
      * @param servletContextEvent containing the ServletContext that is being destroyed
      */
     @Override

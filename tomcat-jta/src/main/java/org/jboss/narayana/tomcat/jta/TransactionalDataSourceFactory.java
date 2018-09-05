@@ -156,9 +156,9 @@ public class TransactionalDataSourceFactory implements ObjectFactory {
             BasicDataSource ds = BasicDataSourceFactory.createDataSource(properties);
             BasicManagedDataSource mds = new BasicManagedDataSource();
 
-            for(Field field : ds.getClass().getDeclaredFields()) {
+            for (Field field : ds.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
-                if(field.get(ds) == null || Modifier.isFinal(field.getModifiers())){
+                if (field.get(ds) == null || Modifier.isFinal(field.getModifiers())) {
                     continue;
                 }
                 field.set(mds, field.get(ds));

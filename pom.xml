@@ -59,8 +59,8 @@
         <linkXRef>false</linkXRef>
 
         <!-- jvm args -->
-	<jvm.args.jacoco>
-		-javaagent:${project.build.directory}/lib/jacocoagent.jar=destfile=${project.build.directory}/coverage-reports/jacoco-ut.exec,includes=*,append=true,output=file
+        <jvm.args.jacoco>
+            -javaagent:${project.build.directory}/lib/jacocoagent.jar=destfile=${project.build.directory}/coverage-reports/jacoco-ut.exec,includes=*,append=true,output=file
         </jvm.args.jacoco>
         <jvm.args.jdk9/>
     </properties>

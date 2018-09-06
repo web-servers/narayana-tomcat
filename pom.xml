@@ -165,8 +165,8 @@
                             unit tests have been run.
                             -->
                             <execution>
-                                <id>post-unit-test</id>
-                                <phase>test</phase>
+                                <id>post-integration-test</id>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>report</goal>
                                 </goals>
@@ -179,7 +179,7 @@
                             </execution>
                             <execution>
                                 <id>check</id>
-                                <phase>test</phase>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>check</goal>
                                 </goals>

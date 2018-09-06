@@ -31,7 +31,7 @@
     </parent>
     <groupId>org.jboss.integration</groupId>
     <artifactId>narayana-tomcat-all</artifactId>
-    <version>1.0.0.Final-SNAPSHOT</version>
+    <version>1.0.0.Final</version>
     <packaging>pom</packaging>
     <name>Narayana: Tomcat integration</name>
     <properties>

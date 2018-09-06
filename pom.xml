@@ -53,13 +53,15 @@
         <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.6.6</version.org.sonatype.plugins.nexus-staging-maven-plugin>
         <version.checkstyle>8.5</version.checkstyle>
         <version.org.wildfly.checkstyle-config>1.0.7.Final</version.org.wildfly.checkstyle-config>
-        <version.org.jacoco>0.7.8</version.org.jacoco>
+        <version.org.jacoco>0.8.2</version.org.jacoco>
 
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
 
         <!-- jvm args -->
-        <jvm.args.jacoco>-javaagent:${project.build.directory}/lib/jacocoagent.jar=destfile=${project.build.directory}/coverage-reports/jacoco-ut.exec,includes=*,append=true,output=file</jvm.args.jacoco>
+	<jvm.args.jacoco>
+		-javaagent:${project.build.directory}/lib/jacocoagent.jar=destfile=${project.build.directory}/coverage-reports/jacoco-ut.exec,includes=*,append=true,output=file
+        </jvm.args.jacoco>
         <jvm.args.jdk9/>
     </properties>
     <modules>
@@ -197,30 +199,8 @@
                                                     <value>COVEREDRATIO</value>
                                                     <minimum>0.0</minimum>
                                                 </limit>
-                                                <!--
-                                                <limit>
-                                                    <counter>CLASS</counter>
-                                                    <value>MISSEDCOUNT</value>
-                                                    <maximum>0</maximum>
-                                                </limit>
-                                                -->
                                             </limits>
                                         </rule>
-                                        <!--
-                                        <rule>
-                                            <element>CLASS</element>
-                                            <excludes>
-                                                <exclude>*Test</exclude>
-                                            </excludes>
-                                            <limits>
-                                                <limit>
-                                                    <counter>LINE</counter>
-                                                    <value>COVEREDRATIO</value>
-                                                    <minimum>0.20</minimum>
-                                                </limit>
-                                            </limits>
-                                        </rule>
-                                        -->
                                     </rules>
                                 </configuration>
                             </execution>

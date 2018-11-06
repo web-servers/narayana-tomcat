@@ -42,7 +42,7 @@ public class TransactionLifecycleListener implements LifecycleListener {
           .asList(ExpiredTransactionStatusManagerScanner.class.getName());
 
     /**
-     * Lifecycle.START_EVENT:
+     * Lifecycle.BEFORE_START_EVENT:
      * <p>
      * Initialize and start Narayana JTA services.
      * <p>
@@ -60,7 +60,7 @@ public class TransactionLifecycleListener implements LifecycleListener {
      * <p>
      * After setup recovery manager, transaction status manager, and transaction reaper are started.
      * <p>
-     * Lifecysle.STOP_EVENT:
+     * Lifecysle.BEFORE_STOP_EVENT:
      * <p>
      * Destroying Narayana JTA services.
      * <p>
@@ -84,7 +84,7 @@ public class TransactionLifecycleListener implements LifecycleListener {
       } else if (Lifecycle.BEFORE_STOP_EVENT.equals(event.getType())) {
           LOGGER.fine("Disabling Narayana");
           TransactionReaper.terminate(false);
-          TxControl.disable(true);
+          TxControl.disable();
           RecoveryManager.manager().terminate();
           Collections.list(DriverManager.getDrivers()).stream().filter(d -> d instanceof TransactionalDriver)
               .forEach(d -> {

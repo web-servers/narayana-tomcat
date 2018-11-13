@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.jboss.narayana.tomcat.jta;
+package org.jboss.narayana.tomcat.jta.integration.utils.internal;
 
-enum DatabaseProvider {
+public enum DatabaseProvider {
 
     DB2,
     H2,
@@ -28,7 +28,7 @@ enum DatabaseProvider {
     POSTGRES_PLUS,
     SYBASE;
 
-    static DatabaseProvider fromDriverClassName(String driverClassName) {
+    public static DatabaseProvider fromDriverClassName(String driverClassName) {
         if (driverClassName == null || driverClassName.isEmpty()) {
             throw new IllegalArgumentException("Driver class name cannot be empty.");
         }

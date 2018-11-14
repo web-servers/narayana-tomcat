@@ -173,6 +173,12 @@
             <version>${version.org.apache.tomcat}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>simple-jndi</groupId>
+            <artifactId>simple-jndi</artifactId>
+            <version>${version.simple-jndi}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

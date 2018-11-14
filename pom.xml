@@ -54,7 +54,7 @@
         <version.checkstyle>8.5</version.checkstyle>
         <version.org.wildfly.checkstyle-config>1.0.7.Final</version.org.wildfly.checkstyle-config>
         <version.org.jacoco>0.8.2</version.org.jacoco>
-
+        <version.simple-jndi>0.11.4.1</version.simple-jndi>
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>
 

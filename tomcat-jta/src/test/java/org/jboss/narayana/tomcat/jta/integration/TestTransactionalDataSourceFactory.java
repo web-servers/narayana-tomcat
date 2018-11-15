@@ -20,10 +20,7 @@ import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImpl
 import org.apache.naming.NamingContext;
 import org.apache.tomcat.dbcp.dbcp2.managed.BasicManagedDataSource;
 import org.h2.jdbcx.JdbcDataSource;
-import org.jboss.narayana.tomcat.jta.NarayanaJtaServletContextListener;
 import org.jboss.narayana.tomcat.jta.TransactionalDataSourceFactory;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.naming.Context;
@@ -42,18 +39,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author <a href="mailto:zfeng@redhat.com>Zheng Feng</a>
  */
-public class TestTransactionalDataSourceFactory {
-    private NarayanaJtaServletContextListener listener = new NarayanaJtaServletContextListener();
-
-    @Before
-    public void setUp() {
-        listener.contextInitialized(null);
-    }
-
-    @After
-    public void tearDown() {
-        listener.contextDestroyed(null);
-    }
+public class TestTransactionalDataSourceFactory extends AbstractUnitCase {
 
     @Test
     public void testProperties() throws Exception {

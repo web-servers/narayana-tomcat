@@ -3,25 +3,11 @@ package org.jboss.narayana.tomcat.jta.integration;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.jboss.narayana.tomcat.jta.NarayanaJtaServletContextListener;
 import org.jboss.narayana.tomcat.jta.integration.utils.DataSourceFactory;
 import org.jboss.narayana.tomcat.jta.integration.utils.PoolingDataSourceWrapper;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-public class TestStandaloneDataSource {
-    private NarayanaJtaServletContextListener listener = new NarayanaJtaServletContextListener();
-
-    @Before
-    public void setUp() {
-        listener.contextInitialized(null);
-    }
-
-    @After
-    public void tearDown() {
-        listener.contextDestroyed(null);
-    }
+public class TestStandaloneDataSource extends AbstractUnitCase {
 
     @Test
     public void testStandaloneDataSourceConnect() {

@@ -16,29 +16,18 @@
  */
 package org.jboss.narayana.tomcat.jta;
 
-import com.arjuna.ats.internal.jta.recovery.arjunacore.XARecoveryModule;
-import com.arjuna.ats.jta.recovery.XAResourceRecoveryHelper;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
-import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
-import org.apache.tomcat.dbcp.dbcp2.BasicDataSourceFactory;
-import org.apache.tomcat.dbcp.dbcp2.managed.BasicManagedDataSource;
+import org.jboss.narayana.tomcat.jta.internal.PoolingDataSourceFactory;
 
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
-import javax.sql.ConnectionEvent;
-import javax.sql.ConnectionEventListener;
-import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionSynchronizationRegistry;
-import javax.transaction.xa.XAResource;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -53,71 +42,6 @@ public class TransactionalDataSourceFactory implements ObjectFactory {
     private static final String PROP_TRANSACTION_MANAGER = "transactionManager";
     private static final String PROP_XA_DATASOURCE = "xaDataSource";
     private static final String PROP_TRANSACTION_SYNCHRONIZATION_REGISTRY = "transactionSynchronizationRegistry";
-    private static final String PROP_USERNAME = "username";
-    private static final String PROP_PASSWORD = "password";
-
-    static XAResourceRecoveryHelper getXAResourceRecoveryHelper(XADataSource xaDataSource, Properties properties) {
-        return new XAResourceRecoveryHelper() {
-            private final Object lock = new Object();
-            private XAConnection connection;
-
-            @Override
-            public boolean initialise(String p) throws Exception {
-                return true;
-            }
-
-            @Override
-            public synchronized XAResource[] getXAResources() throws Exception {
-                synchronized (lock) {
-                    initialiseConnection();
-                    try {
-                        return new XAResource[]{connection.getXAResource()};
-                    } catch (SQLException ex) {
-                        return new XAResource[0];
-                    }
-                }
-            }
-
-            private void initialiseConnection() throws SQLException {
-                // This will allow us to ensure that each recovery cycle gets a fresh connection
-                // It might be better to close at the end of the recovery pass to free up the connection but
-                // we don't have a hook
-                if (connection == null) {
-                    final String user = properties.getProperty(PROP_USERNAME);
-                    final String password = properties.getProperty(PROP_PASSWORD);
-
-                    if (user != null && password != null) {
-                        connection = xaDataSource.getXAConnection(user, password);
-                    } else {
-                        connection = xaDataSource.getXAConnection();
-                    }
-                    connection.addConnectionEventListener(new ConnectionEventListener() {
-                        @Override
-                        public void connectionClosed(ConnectionEvent event) {
-                            log.warn("The connection was closed: " + connection);
-                            synchronized (lock) {
-                                connection = null;
-                            }
-                        }
-
-                        @Override
-                        public void connectionErrorOccurred(ConnectionEvent event) {
-                            log.warn("A connection error occurred: " + connection);
-                            synchronized (lock) {
-                                try {
-                                    connection.close();
-                                } catch (SQLException e) {
-                                    // Ignore
-                                    log.warn("Could not close failing connection: " + connection);
-                                }
-                                connection = null;
-                            }
-                        }
-                    });
-                }
-            }
-        };
-    }
 
     @Override
     public Object getObjectInstance(Object obj, Name name, Context context, Hashtable<?, ?> environment) throws Exception {
@@ -145,46 +69,7 @@ public class TransactionalDataSourceFactory implements ObjectFactory {
         final XADataSource xaDataSource = (XADataSource) getReferenceObject(ref, context, PROP_XA_DATASOURCE);
         final TransactionSynchronizationRegistry tsr = (TransactionSynchronizationRegistry) getReferenceObject(ref, context, PROP_TRANSACTION_SYNCHRONIZATION_REGISTRY);
 
-        if (transactionManager != null && xaDataSource != null) {
-            /*
-             * There is a trick to fix DBCP-215 so we have to remove the "initialSize" that
-             * the BaiscDataSourceFactory.createDataSource(properties) will not create the connections in the pool.
-             * And it will create the connections with the BaiscManagedDataSource later if the initialSize > 0.
-             */
-            String initialSize = properties.getProperty("initialSize");
-            properties.remove("initialSize");
-            BasicDataSource ds = BasicDataSourceFactory.createDataSource(properties);
-            BasicManagedDataSource mds = new BasicManagedDataSource();
-
-            for (Field field : ds.getClass().getDeclaredFields()) {
-                field.setAccessible(true);
-                if (field.get(ds) == null || Modifier.isFinal(field.getModifiers())) {
-                    continue;
-                }
-                field.set(mds, field.get(ds));
-            }
-
-            mds.setTransactionManager(transactionManager);
-            mds.setXaDataSourceInstance(xaDataSource);
-            mds.setTransactionSynchronizationRegistry(tsr);
-
-            if (initialSize != null) {
-                mds.setInitialSize(Integer.parseInt(initialSize));
-                if (mds.getInitialSize() > 0) {
-                    mds.getLogWriter();
-                }
-            }
-
-            // Register for recovery
-            XARecoveryModule xaRecoveryModule = getXARecoveryModule();
-            if (xaRecoveryModule != null) {
-                xaRecoveryModule.addXAResourceRecoveryHelper(getXAResourceRecoveryHelper(xaDataSource, properties));
-            }
-
-            return mds;
-        } else {
-            return null;
-        }
+        return PoolingDataSourceFactory.createPoolingDataSource(transactionManager, xaDataSource, tsr, properties);
     }
 
     private Object getReferenceObject(Reference ref, Context context, String prop) throws Exception {
@@ -194,13 +79,5 @@ public class TransactionalDataSourceFactory implements ObjectFactory {
         } else {
             return null;
         }
-    }
-
-    private XARecoveryModule getXARecoveryModule() {
-        final XARecoveryModule xaRecoveryModule = XARecoveryModule.getRegisteredXARecoveryModule();
-        if (xaRecoveryModule != null) {
-            return xaRecoveryModule;
-        }
-        throw new IllegalStateException("XARecoveryModule is not registered with recovery manager");
     }
 }

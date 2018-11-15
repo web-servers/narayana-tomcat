@@ -33,12 +33,13 @@
     <artifactId>narayana-tomcat</artifactId>
     <name>Narayana: Tomcat JTA integration</name>
     <properties>
+        <java.library.path>${env.LD_LIBRARY_PATH}</java.library.path>
         <jvm.args.debug></jvm.args.debug>
         <jvm.args.byteman>
             -Dorg.jboss.byteman.verbose -Djboss.modules.system.pkgs=org.jboss.byteman -Dorg.jboss.byteman.transform.all
             -javaagent:${project.build.directory}/lib/byteman.jar=script:${project.build.directory}/test-classes/scripts.btm,listener:true
         </jvm.args.byteman>
-        <server.jvm.args>${jvm.args.byteman} ${jvm.args.debug}</server.jvm.args>
+        <server.jvm.args>-Djava.security.egd=file:/dev/urandom ${java.library.path} ${jvm.args.byteman} ${jvm.args.debug}</server.jvm.args>
     </properties>
     <dependencies>
         <dependency>

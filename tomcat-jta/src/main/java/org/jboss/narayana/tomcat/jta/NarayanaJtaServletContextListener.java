@@ -94,7 +94,7 @@ public class NarayanaJtaServletContextListener implements ServletContextListener
         initRecoveryModules();
         initOrphanFilters();
         initExpiryScanners();
-        RecoveryManager.manager();
+        RecoveryManager.manager().initialize();
         TxControl.enable();
         TransactionReaper.instantiate();
     }

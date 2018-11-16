@@ -28,12 +28,13 @@ package io.narayana.db;
  *
  * @author <a href="mailto:karm@redhat.com">Michal Karm Babacek</a>
  */
-public class CIPostgreAllocator extends Allocator {
+public class CIPostgreAllocator extends DefaultAllocator {
 
     CIPostgreAllocator() {
         // Use getInstance
     }
 
+    @Override
     public DB allocateDB(final int expiryMinutes) {
         final String versionPostgreSQLDriver = getProp("version.postgresql");
         final String user = getProp("pgsql.user");
@@ -60,29 +61,5 @@ public class CIPostgreAllocator extends Allocator {
                 .tdsType("javax.sql.XADataSource")
                 .dbDriverArtifact("postgresql:postgresql:" + versionPostgreSQLDriver)
                 .build();
-    }
-
-    public DB allocateDB() {
-        return allocateDB(0);
-    }
-
-    public boolean deallocateDB(final DB db) {
-        // Intentionally nothing
-        return true;
-    }
-
-    public boolean reallocateDB(final int expiryMinutes, final DB db) {
-        // Intentionally nothing
-        return true;
-    }
-
-    public boolean reallocateDB(final DB db) {
-        // Intentionally nothing
-        return true;
-    }
-
-    public boolean cleanDB(final DB db) {
-        // Intentionally nothing
-        return true;
     }
 }

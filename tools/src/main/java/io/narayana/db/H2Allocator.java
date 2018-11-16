@@ -25,12 +25,13 @@ package io.narayana.db;
 /**
  * @author <a href="mailto:karm@redhat.com">Michal Karm Babacek</a>
  */
-public class H2Allocator extends Allocator {
+public class H2Allocator extends DefaultAllocator {
 
     H2Allocator() {
         // Use getInstance
     }
 
+    @Override
     public DB allocateDB(final int expiryMinutes) {
         final String versionComH2database = getProp("version.com.h2database");
         return new DB.Builder()
@@ -45,29 +46,5 @@ public class H2Allocator extends Allocator {
                 .tdsType("javax.sql.XADataSource")
                 .dbDriverArtifact("com.h2database:h2:" + versionComH2database)
                 .build();
-    }
-
-    public DB allocateDB() {
-        return allocateDB(0);
-    }
-
-    public boolean deallocateDB(final DB db) {
-        // Intentionally nothing
-        return true;
-    }
-
-    public boolean reallocateDB(final int expiryMinutes, final DB db) {
-        // Intentionally nothing
-        return true;
-    }
-
-    public boolean reallocateDB(final DB db) {
-        // Intentionally nothing
-        return true;
-    }
-
-    public boolean cleanDB(final DB db) {
-        // Intentionally nothing
-        return true;
     }
 }

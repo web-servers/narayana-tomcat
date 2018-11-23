@@ -3,7 +3,7 @@ package org.jboss.narayana.tomcat.jta.integration;
 import io.narayana.db.Allocator;
 import io.narayana.db.DB;
 import io.narayana.db.DBAllocator;
-import io.narayana.db.H2Allocator;
+import io.narayana.db.ExternalDBAllocator;
 import io.narayana.db.PostgreContainerAllocator;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -70,8 +70,7 @@ public abstract class AbstractCase {
             assertNotNull("Failed to allocate DB. Check logs for the root cause.", db);
             // Configuration of deployment, driver, data sources XML, ...
             prepareContextXML();
-            final File[] dbDriver = (dba instanceof DBAllocator) ? new File[]{new File(db.dbDriverArtifact)} :
-                    Maven.resolver().resolve(db.dbDriverArtifact).withTransitivity().asFile();
+            final File[] dbDriver = resolveJdbcDriverPath();
             dbDriverAbsolutePath = dbDriver[0].getAbsolutePath();
 
             executeTestStatement(dbDriverAbsolutePath, db, dba);
@@ -107,6 +106,14 @@ public abstract class AbstractCase {
                 dba.deallocateDB(db);
             }
             fail(e.getMessage());
+        }
+    }
+
+    private static File[] resolveJdbcDriverPath() {
+        if (dba instanceof DBAllocator || dba instanceof ExternalDBAllocator) {
+            return new File[]{new File(db.dbDriverArtifact)};
+        } else {
+            return Maven.resolver().resolve(db.dbDriverArtifact).withTransitivity().asFile();
         }
     }
 
@@ -146,20 +153,38 @@ public abstract class AbstractCase {
             final Element dbSource = context.createElement("Resource");
             dbSource.setAttribute("name", "myDataSource");
             dbSource.setAttribute("uniqueName", "myDataSource");
+            dbSource.setAttribute("description", "Data Source");
             dbSource.setAttribute("auth", "Container");
             dbSource.setAttribute("type", db.dsType);
             dbSource.setAttribute("username", db.dsUsername);
             dbSource.setAttribute("user", db.dsUser);
             dbSource.setAttribute("password", db.dsPassword);
-            dbSource.setAttribute("url", db.dsUrl);
-            dbSource.setAttribute("description", "Data Source");
-            dbSource.setAttribute("loginTimeout", db.dsLoginTimeout);
-            dbSource.setAttribute("factory", db.dsFactory);
-            if (!(dba instanceof H2Allocator)) {
+            dbSource.setAttribute("driverType", "4");
+            if (StringUtils.isNotEmpty(db.dsUrl)) {
+                dbSource.setAttribute("url", db.dsUrl);
+                dbSource.setAttribute("URL", db.dsUrl);
+            }
+            if (StringUtils.isNotEmpty(db.dsLoginTimeout)) {
+                dbSource.setAttribute("loginTimeout", db.dsLoginTimeout);
+            }
+            if (StringUtils.isNotEmpty(db.dsFactory)) {
+                dbSource.setAttribute("factory", db.dsFactory);
+            } else {
+                dbSource.setAttribute("factory", "org.apache.tomcat.jdbc.naming.GenericNamingResourcesFactory");
+            }
+            if (StringUtils.isNotEmpty(db.dsDbName)) {
                 dbSource.setAttribute("databaseName", db.dsDbName);
+            }
+            if (StringUtils.isNotEmpty(db.dsDbPort)) {
                 dbSource.setAttribute("portNumber", db.dsDbPort);
+            }
+            if (StringUtils.isNotEmpty(db.dsDbHostname)) {
                 dbSource.setAttribute("serverName", db.dsDbHostname);
             }
+            if (StringUtils.isNotEmpty(db.dsSchema)) {
+                dbSource.setAttribute("schema", db.dsSchema);
+            }
+
             context.getDocumentElement().appendChild(dbSource);
 
             final Element tsDbSource = context.createElement("Resource");

@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:karm@redhat.com">Michal Karm Babacek</a>
  */
-public class PostgreContainerAllocator extends Allocator {
+public class PostgreContainerAllocator extends DefaultAllocator {
     private static final Logger LOGGER = Logger.getLogger(PostgreContainerAllocator.class.getName());
 
     private final DockerClient dockerClient;
@@ -74,6 +74,7 @@ public class PostgreContainerAllocator extends Allocator {
                 .build();
     }
 
+    @Override
     public DB allocateDB(final int expiryMinutes) {
         final String projectBuildDirectory = getProp("project.build.directory");
         final File driversDir = new File(projectBuildDirectory);
@@ -233,10 +234,7 @@ public class PostgreContainerAllocator extends Allocator {
                 .build();
     }
 
-    public DB allocateDB() {
-        return allocateDB(0);
-    }
-
+    @Override
     public boolean deallocateDB(final DB db) {
         final String containerName = getProp("container.name");
         LOGGER.info("Listing containers for deallocation.");
@@ -259,16 +257,7 @@ public class PostgreContainerAllocator extends Allocator {
         return true;
     }
 
-    public boolean reallocateDB(final int expiryMinutes, final DB db) {
-        // Intentionally nothing
-        return true;
-    }
-
-    public boolean reallocateDB(final DB db) {
-        // Intentionally nothing
-        return true;
-    }
-
+    @Override
     public boolean cleanDB(final DB db) {
         final String containerName = getProp("container.name");
         final String containerDatabaseBindHostPort = getProp("container.database.bind.host.port");

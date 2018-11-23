@@ -22,6 +22,10 @@ The fourth **and the most versatile mode** is to control a Docker daemon and to 
 containers. The test suite expects a Docker daemon listening to its REST commands and nothing else. 
 No special or pre-fetched images or local dependencies are expected. Postgres family of databases is currently implemented.
 
+## 5. External Database
+
+With this option, the test suite relies on an external database to be running and details on how to connect to it must be provided.
+
 # Examples
 
 All undermentioned examples expect a Tomcat installation pointed to by ```CATALINA_HOME``` env var. Certain users (mandatory) and logging (convenient) settings are also listed:
@@ -132,6 +136,18 @@ It is noteworthy that the test suite retrieves trace log from the database conta
 ```
 
 The container based testing is used upstream.
+
+## 4. External Database
+Run the TS:
+
+```bash
+mvn integration-test -Parq-tomcat -Dtomcat.user=arquillian -Dtomcat.pass=arquillian  -Dtest.db.type=external  \ 
+    -Djdbc.driver.jar=~/h2.jar -Djdbc.url="jdbc:h2:mem:test;MVCC=true"  \
+    -Djdbc.username=sa -Djdbc.password=sa -Ddatasource.classname=org.h2.jdbcx.JdbcDataSource  \
+    -Djdbc.driver.class=org.h2.Driver -Djdbc.db.name=test
+```
+
+For some database systems, different options might be required. Please see the corresponding maven profile for a complete set of supported options.
 
 # Jenkins job
 

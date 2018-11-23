@@ -70,6 +70,8 @@ public abstract class Allocator {
             dbAllocator = new PostgreContainerAllocator();
         } else if ("dballocator".equals(mode)) {
             dbAllocator = new DBAllocator();
+        } else if ("external".equals(mode)) {
+            dbAllocator = new ExternalDBAllocator();
         } else {
             throw new IllegalArgumentException("Unknown operation mode, expected pgsql or h2 or container or dballocator but it was: " + mode);
         }

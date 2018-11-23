@@ -39,6 +39,7 @@ public class DB {
     public final String dsLoginTimeout;
     public final String dsFactory;
     public final String dsDriverClassName;
+    public final String dsSchema;
     public final String tdsType;
     public final String tdsUrl;
     public final String tdsDriverClassName;
@@ -58,6 +59,7 @@ public class DB {
         private String dsLoginTimeout;
         private String dsFactory;
         private String dsDriverClassName;
+        public  String dsSchema;
         private String tdsType;
         private String tdsUrl;
         private String tdsDriverClassName;
@@ -120,6 +122,11 @@ public class DB {
             return this;
         }
 
+        Builder dsSchema(String dsSchema) {
+            this.dsSchema = dsSchema;
+            return this;
+        }
+
         Builder tdsType(String tdsType) {
             this.tdsType = tdsType;
             return this;
@@ -167,6 +174,7 @@ public class DB {
         this.dsLoginTimeout = builder.dsLoginTimeout;
         this.dsFactory = builder.dsFactory;
         this.dsDriverClassName = builder.dsDriverClassName;
+        this.dsSchema = builder.dsSchema;
         this.tdsType = builder.tdsType;
         this.tdsUrl = builder.tdsUrl;
         this.tdsDriverClassName = builder.tdsDriverClassName;

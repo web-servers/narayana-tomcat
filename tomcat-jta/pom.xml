@@ -39,6 +39,7 @@
             -javaagent:${project.build.directory}/lib/byteman.jar=script:${project.build.directory}/test-classes/scripts.btm,listener:true
         </jvm.args.byteman>
         <server.jvm.args>${jvm.args.byteman} ${jvm.args.debug}</server.jvm.args>
+        <test.db.type/>
     </properties>
     <dependencies>
         <dependency>
@@ -223,6 +224,24 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
+            <properties>
+                <!--
+                    h2:
+                      By default, the integration test runs with "h2" database, platform independent and in-memory.
+                    pgsql:
+                      If selected, the TS runs against a remote, always present PostgreSQL database server available in the Narayana CI.
+                    container:
+                      It requires a running Docker daemon the user executing this TS has the rights to control
+                      A database is started as a Docker container and it is discarded at the end of testing.
+                    dballocator:
+                      It requires an instance of DBAllocator running in your infrastructure. It enables the TS to
+                      lease various databases, including but not limited to Sybase, DB2, MS SQL, Maria, Postgress, Oracle...
+                    external:
+                      External database is used and the caller is responsible for running it and providing details how
+                      to connect to it.
+                -->
+                <test.db.type>h2</test.db.type>
+            </properties>
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
@@ -232,91 +251,49 @@
                 </dependency>
             </dependencies>
             <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <goals>
+                                        <goal>integration-test</goal>
+                                    </goals>
+                                    <configuration>
+                                        <skip>false</skip>
+                                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                                        <forkCount>0</forkCount>
+                                        <systemPropertyVariables combine.children="append">
+                                            <project.version>${project.version}</project.version>
+                                            <project.build.directory>${project.build.directory}</project.build.directory>
+                                            <version.org.jboss.narayana>${version.org.jboss.narayana}</version.org.jboss.narayana>
+                                            <version.org.jboss.resteasy>${version.org.jboss.resteasy}</version.org.jboss.resteasy>
+                                            <version.org.jboss.spec.javax.transaction>${version.org.jboss.spec.javax.transaction}</version.org.jboss.spec.javax.transaction>
+                                            <server.jvm.args>${server.jvm.args}</server.jvm.args>
+                                            <tomcat.user>arquillian</tomcat.user>
+                                            <tomcat.pass>arquillian</tomcat.pass>
+                                            <db.timeout.waiting.for.heartbeat.statement>120000</db.timeout.waiting.for.heartbeat.statement>
+                                            <db.timeout.heartbeat.statement>SELECT 1;</db.timeout.heartbeat.statement>
+                                        </systemPropertyVariables>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>verify</id>
+                                    <phase>verify</phase>
+                                    <goals>
+                                        <goal>verify</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                </goals>
-                                <configuration>
-                                    <skip>false</skip>
-                                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                                    <forkCount>0</forkCount>
-                                    <systemPropertyVariables combine.children="append">
-                                        <project.version>${project.version}</project.version>
-                                        <project.build.directory>${project.build.directory}</project.build.directory>
-                                        <version.org.jboss.narayana>${version.org.jboss.narayana}</version.org.jboss.narayana>
-                                        <version.org.jboss.resteasy>${version.org.jboss.resteasy}</version.org.jboss.resteasy>
-                                        <version.org.jboss.spec.javax.transaction>${version.org.jboss.spec.javax.transaction}</version.org.jboss.spec.javax.transaction>
-                                        <server.jvm.args>${server.jvm.args}</server.jvm.args>
-                                        <tomcat.user>arquillian</tomcat.user>
-                                        <tomcat.pass>arquillian</tomcat.pass>
-
-                                        <!--
-                                        h2:
-                                          By default, the integration test runs with "h2" database, platform independent and in-memory.
-                                        pgsql:
-                                          If selected, the TS runs against a remote, always present PostgreSQL database server available in the Narayana CI.
-                                        container:
-                                          It requires a running Docker daemon the user executing this TS has the rights to control
-                                          A database is started as a Docker container and it is discarded at the end of testing.
-                                        dballocator:
-                                          It requires an instance of DBAllocator running in your infrastructure. It enables the TS to
-                                          lease various databases, including but not limited to Sybase, DB2, MS SQL, Maria, Postgress, Oracle...
-                                        -->
-                                        <test.db.type>h2</test.db.type>
-
-                                        <!-- pgsql properties -->
-                                        <version.postgresql>${version.postgresql}</version.postgresql>
-                                        <pgsql.user>dtf11</pgsql.user>
-                                        <pgsql.password>dtf11</pgsql.password>
-                                        <pgsql.servername>narayanaci1.eng.hst.ams2.redhat.com</pgsql.servername>
-                                        <pgsql.portnumber>5432</pgsql.portnumber>
-                                        <pgsql.databasename>jbossts</pgsql.databasename>
-
-                                        <!-- h2 properties -->
-                                        <version.com.h2database>${version.com.h2database}</version.com.h2database>
-
-                                        <!-- container properties -->
-                                        <container.database.image>postgres:10</container.database.image>
-                                        <container.database.driver.artifact>org.postgresql:postgresql:42.2.2</container.database.driver.artifact>
-                                        <container.database.driver.class>org.postgresql.Driver</container.database.driver.class>
-                                        <container.database.datasource.class.xa>org.postgresql.xa.PGXADataSource</container.database.datasource.class.xa>
-                                        <container.docker.daemon.api.url>tcp://127.0.0.1:2375</container.docker.daemon.api.url>
-                                        <container.name>narayana_db</container.name>
-                                        <container.database.username>narayana_user</container.database.username>
-                                        <container.database.password>narayana_pass</container.database.password>
-                                        <container.database.name>narayana_db</container.database.name>
-                                        <container.database.bind.host.ip>127.0.0.1</container.database.bind.host.ip>
-                                        <container.database.bind.host.port>5432</container.database.bind.host.port>
-                                        <!-- The undermentioned timeout accounts both for pulling image and starting container up to opened socket. -->
-                                        <container.timeout.waiting.for.tcp>240000</container.timeout.waiting.for.tcp>
-
-                                        <db.timeout.waiting.for.heartbeat.statement>120000</db.timeout.waiting.for.heartbeat.statement>
-                                        <db.timeout.heartbeat.statement>SELECT 1;</db.timeout.heartbeat.statement>
-
-                                        <!-- dballocator properties -->
-                                        <dballocator.host.port>http://your.db.allocator.example.com:8080</dballocator.host.port>
-                                        <dballocator.expression>postgresql94</dballocator.expression>
-                                        <dballocator.requestee>narayana-tomcat-ts</dballocator.requestee>
-                                        <dballocator.expiry.minutes>10</dballocator.expiry.minutes>
-                                        <dballocator.timeout.minutes>20</dballocator.timeout.minutes>
-                                        <dballocator.driver.url>http://your.fileserver.example.com/postgresql-42.1.1.jar</dballocator.driver.url>
-                                        <dballocator.driver.url.timeout.seconds>120</dballocator.driver.url.timeout.seconds>
-                                    </systemPropertyVariables>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>verify</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -337,6 +314,170 @@
                         </executions>
                     </plugin>
                 </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>externalDatabase</id>
+            <activation>
+                <property>
+                    <name>test.db.type</name>
+                    <value>external</value>
+                </property>
+            </activation>
+            <properties>
+                <datasource.classname>org.h2.jdbcx.JdbcDataSource</datasource.classname>
+                <jdbc.driver.class>org.h2.Driver</jdbc.driver.class>
+                <jdbc.db.name/>
+                <jdbc.db.port/>
+                <jdbc.db.server/>
+                <jdbc.driver.jar/>
+                <jdbc.username>sa</jdbc.username>
+                <jdbc.password>sa</jdbc.password>
+                <jdbc.url>jdbc:h2:tcp://localhost/${project.basedir}/target/test-db;MVCC=TRUE</jdbc.url>
+                <jdbc.schema>public</jdbc.schema>
+            </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <configuration>
+                                <systemPropertyVariables combine.children="append">
+                                    <datasource.classname>${datasource.classname}</datasource.classname>
+                                    <jdbc.driver.class>${jdbc.driver.class}</jdbc.driver.class>
+                                    <jdbc.db.name>${jdbc.db.name}</jdbc.db.name>
+                                    <jdbc.db.port>${jdbc.db.port}</jdbc.db.port>
+                                    <jdbc.db.server>${jdbc.db.server}</jdbc.db.server>
+                                    <jdbc.driver.jar>${jdbc.driver.jar}</jdbc.driver.jar>
+                                    <jdbc.username>${jdbc.username}</jdbc.username>
+                                    <jdbc.password>${jdbc.password}</jdbc.password>
+                                    <jdbc.url>${jdbc.url}</jdbc.url>
+                                    <jdbc.schema>${jdbc.schema}</jdbc.schema>
+                                </systemPropertyVariables>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>h2Database</id>
+            <activation>
+                <property>
+                    <name>test.db.type</name>
+                    <value>h2</value>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <configuration>
+                                <systemPropertyVariables combine.children="append">
+                                    <version.com.h2database>${version.com.h2database}</version.com.h2database>
+                                </systemPropertyVariables>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>postgresql</id>
+            <activation>
+                <property>
+                    <name>test.db.type</name>
+                    <value>pgsql</value>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <configuration>
+                                <systemPropertyVariables combine.children="append">
+                                    <version.postgresql>${version.postgresql}</version.postgresql>
+                                    <pgsql.user>dtf11</pgsql.user>
+                                    <pgsql.password>dtf11</pgsql.password>
+                                    <pgsql.servername>narayanaci1.eng.hst.ams2.redhat.com</pgsql.servername>
+                                    <pgsql.portnumber>5432</pgsql.portnumber>
+                                    <pgsql.databasename>jbossts</pgsql.databasename>
+                                </systemPropertyVariables>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>container</id>
+            <activation>
+                <property>
+                    <name>test.db.type</name>
+                    <value>container</value>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <configuration>
+                                <systemPropertyVariables combine.children="append">
+                                    <container.database.image>postgres:10</container.database.image>
+                                    <container.database.driver.artifact>org.postgresql:postgresql:42.2.2</container.database.driver.artifact>
+                                    <container.database.driver.class>org.postgresql.Driver</container.database.driver.class>
+                                    <container.database.datasource.class.xa>org.postgresql.xa.PGXADataSource</container.database.datasource.class.xa>
+                                    <container.docker.daemon.api.url>tcp://127.0.0.1:2375</container.docker.daemon.api.url>
+                                    <container.name>narayana_db</container.name>
+                                    <container.database.username>narayana_user</container.database.username>
+                                    <container.database.password>narayana_pass</container.database.password>
+                                    <container.database.name>narayana_db</container.database.name>
+                                    <container.database.bind.host.ip>127.0.0.1</container.database.bind.host.ip>
+                                    <container.database.bind.host.port>5432</container.database.bind.host.port>
+                                    <!-- The undermentioned timeout accounts both for pulling image and starting container up to opened socket. -->
+                                    <container.timeout.waiting.for.tcp>240000</container.timeout.waiting.for.tcp>
+                                </systemPropertyVariables>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>dballocator</id>
+            <activation>
+                <property>
+                    <name>test.db.type</name>
+                    <value>dballocator</value>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <configuration>
+                                <systemPropertyVariables combine.children="append">
+                                    <dballocator.host.port>http://your.db.allocator.example.com:8080</dballocator.host.port>
+                                    <dballocator.expression>postgresql94</dballocator.expression>
+                                    <dballocator.requestee>narayana-tomcat-ts</dballocator.requestee>
+                                    <dballocator.expiry.minutes>10</dballocator.expiry.minutes>
+                                    <dballocator.timeout.minutes>20</dballocator.timeout.minutes>
+                                    <dballocator.driver.url>http://your.fileserver.example.com/postgresql-42.1.1.jar</dballocator.driver.url>
+                                    <dballocator.driver.url.timeout.seconds>120</dballocator.driver.url.timeout.seconds>
+                                </systemPropertyVariables>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
             </build>
         </profile>
         <profile>

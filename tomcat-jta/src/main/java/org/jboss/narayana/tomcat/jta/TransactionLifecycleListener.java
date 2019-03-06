@@ -38,8 +38,7 @@ public class TransactionLifecycleListener implements LifecycleListener {
   private static final List<String> DEFAULT_ORPHAN_FILTERS = Arrays
           .asList(JTATransactionLogXAResourceOrphanFilter.class.getName(), JTANodeNameXAResourceOrphanFilter.class.getName());
 
-  private static final List<String> DEFAULT_EXPIRY_SCANNERS = Arrays
-          .asList(ExpiredTransactionStatusManagerScanner.class.getName());
+  private static final List<String> DEFAULT_EXPIRY_SCANNERS = Collections.singletonList(ExpiredTransactionStatusManagerScanner.class.getName());
 
     /**
      * Lifecycle.BEFORE_START_EVENT:
@@ -60,7 +59,7 @@ public class TransactionLifecycleListener implements LifecycleListener {
      * <p>
      * After setup recovery manager, transaction status manager, and transaction reaper are started.
      * <p>
-     * Lifecysle.BEFORE_STOP_EVENT:
+     * Lifecycle.BEFORE_STOP_EVENT:
      * <p>
      * Destroying Narayana JTA services.
      * <p>

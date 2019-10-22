@@ -170,7 +170,7 @@ public class DBAllocator extends Allocator {
                 .dsLoginTimeout("0")
                 .dsFactory(dbaprops.getProperty("datasource.class.xa") + "Factory")
                 .dsDriverClassName(dbaprops.getProperty("db.jdbc_class"))
-                .tdsType("javax.sql.DataSource")
+                .tdsType("javax.sql.XADataSource")
                 .tdsUrl("jdbc:arjuna:java:comp/env")
                 .tdsDriverClassName("com.arjuna.ats.jdbc.TransactionalDriver")
                 .dbDriverArtifact(driverJarDst.getAbsolutePath())

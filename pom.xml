@@ -44,7 +44,7 @@
         <version.org.jboss.resteasy>3.1.4.Final</version.org.jboss.resteasy>
         <version.org.jboss.arquillian.core>1.1.7.Final</version.org.jboss.arquillian.core>
         <version.org.jboss.arquillian.container.tomcat>1.1.0.Final</version.org.jboss.arquillian.container.tomcat>
-        <version.org.jboss.shrinkwrap.resolver>2.2.2</version.org.jboss.shrinkwrap.resolver>
+        <version.org.jboss.shrinkwrap.resolver>2.2.7</version.org.jboss.shrinkwrap.resolver>
         <version.junit>4.11</version.junit>
         <version.javax.servlet>3.0.1</version.javax.servlet>
         <version.com.h2database>1.4.195</version.com.h2database>

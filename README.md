@@ -7,22 +7,18 @@ The test suite offers four modes of operation:
 
 This is the default. If there are no parameters specified, the test suite runs with embedded H2 database and its driver fetched from Maven central.
 
-## 2. PostgreSQL server in CI
-
-If selected, the test suite uses a resident PostgreSQL server present in the Narayana upstream CI environment. The server is always running, always ready and the test suite does not have any control over it. If you have such server installed, simply overwrite ```pgsql``` prefixed attributes in the pom.xml file, e.g. ```-Dpgsql.servername=pg1.example.com```.
-
-## 3. DBAllocator
+## 2. DBAllocator
 
 When specified, the test suite could take advantage of DBAllocator service and allocate an arbitrary database system.
 It was tested to work well with Postgres family of database systems. The DBAllocator service is not public and thus it is not used in the upstream testing.
 
-## 4. Container - Postgres
+## 3. Container - Postgres
 
-The fourth **and the most versatile mode** is to control a Docker daemon and to pull database images and to start 
+The third **and the most versatile mode** is to control a Docker daemon and to pull database images and to start 
 containers. The test suite expects a Docker daemon listening to its REST commands and nothing else. 
 No special or pre-fetched images or local dependencies are expected. Postgres family of databases is currently implemented.
 
-## 5. External Database
+## 4. External Database
 
 With this option, the test suite relies on an external database to be running and details on how to connect to it must be provided.
 

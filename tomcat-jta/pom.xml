@@ -386,35 +386,6 @@
             </build>
         </profile>
         <profile>
-            <id>postgresql</id>
-            <activation>
-                <property>
-                    <name>test.db.type</name>
-                    <value>pgsql</value>
-                </property>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-failsafe-plugin</artifactId>
-                            <configuration>
-                                <systemPropertyVariables combine.children="append">
-                                    <version.postgresql>${version.postgresql}</version.postgresql>
-                                    <pgsql.user>dtf11</pgsql.user>
-                                    <pgsql.password>dtf11</pgsql.password>
-                                    <pgsql.servername>narayanaci1.eng.hst.ams2.redhat.com</pgsql.servername>
-                                    <pgsql.portnumber>5432</pgsql.portnumber>
-                                    <pgsql.databasename>jbossts</pgsql.databasename>
-                                </systemPropertyVariables>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        <profile>
             <id>container</id>
             <activation>
                 <property>

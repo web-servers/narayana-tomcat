@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright The Narayana Authors
+    SPDX-License-Identifier: Apache-2.0
+-->
 <Context antiJarLocking="true" antiResourceLocking="true">
     <!-- Narayana resources -->
     <Transaction factory="org.jboss.narayana.tomcat.jta.UserTransactionFactory"/>

@@ -8,7 +8,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.util.Properties;
-
 import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
 import javax.sql.DataSource;
@@ -18,13 +17,14 @@ import javax.transaction.TransactionManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAResource;
 
-import com.arjuna.ats.internal.jta.recovery.arjunacore.XARecoveryModule;
-import com.arjuna.ats.jta.recovery.XAResourceRecoveryHelper;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.apache.tomcat.dbcp.dbcp2.BasicDataSourceFactory;
 import org.apache.tomcat.dbcp.dbcp2.managed.BasicManagedDataSource;
+
+import com.arjuna.ats.internal.jta.recovery.arjunacore.XARecoveryModule;
+import com.arjuna.ats.jta.recovery.XAResourceRecoveryHelper;
 
 public final class PoolingDataSourceFactory {
 
@@ -59,39 +59,49 @@ public final class PoolingDataSourceFactory {
                 // This will allow us to ensure that each recovery cycle gets a fresh connection
                 // It might be better to close at the end of the recovery pass to free up the connection but
                 // we don't have a hook
-                if (connection == null) {
-                    final String user = properties.getProperty(PROP_USERNAME);
-                    final String password = properties.getProperty(PROP_PASSWORD);
+                if (connection != null) {
+                    try {
+                        log.debug("XAResourceRecoveryHelper : Detected a connection during XARecovery" + connection + " attempting to close it properly & generating a new one");
+                        connection.close();
 
-                    if (user != null && password != null) {
-                        connection = xaDataSource.getXAConnection(user, password);
-                    } else {
-                        connection = xaDataSource.getXAConnection();
+                    } catch (Exception e) {
+                        log.debug("XAResourceRecoveryHelper : The connection could not close properly, generating a new one", e);
+                    } finally {
+                        connection = null;
                     }
-                    connection.addConnectionEventListener(new ConnectionEventListener() {
-                        @Override
-                        public void connectionClosed(ConnectionEvent event) {
-                            log.warn("The connection was closed: " + connection);
-                            synchronized (lock) {
-                                connection = null;
-                            }
-                        }
-
-                        @Override
-                        public void connectionErrorOccurred(ConnectionEvent event) {
-                            log.warn("A connection error occurred: " + connection);
-                            synchronized (lock) {
-                                try {
-                                    connection.close();
-                                } catch (SQLException e) {
-                                    // Ignore
-                                    log.warn("Could not close failing connection: " + connection);
-                                }
-                                connection = null;
-                            }
-                        }
-                    });
                 }
+
+                final String user = properties.getProperty(PROP_USERNAME);
+                final String password = properties.getProperty(PROP_PASSWORD);
+
+                if (user != null && password != null) {
+                    connection = xaDataSource.getXAConnection(user, password);
+                } else {
+                    connection = xaDataSource.getXAConnection();
+                }
+                connection.addConnectionEventListener(new ConnectionEventListener() {
+                    @Override
+                    public void connectionClosed(ConnectionEvent event) {
+                        log.warn("The connection was closed: " + connection);
+                        synchronized (lock) {
+                            connection = null;
+                        }
+                    }
+
+                    @Override
+                    public void connectionErrorOccurred(ConnectionEvent event) {
+                        log.warn("A connection error occurred: " + connection);
+                        synchronized (lock) {
+                            try {
+                                connection.close();
+                            } catch (SQLException e) {
+                                // Ignore
+                                log.warn("Could not close failing connection: " + connection);
+                            }
+                            connection = null;
+                        }
+                    }
+                });
             }
         };
     }

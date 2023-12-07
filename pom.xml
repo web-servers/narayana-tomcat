@@ -232,4 +232,10 @@
             </dependencies>
         </profile>
     </profiles>
+    <scm>
+        <connection>scm:git:git@github.com:web-servers/narayana-tomcat.git</connection>
+        <developerConnection>scm:git:git@github.com:web-servers/narayana-tomcat.git</developerConnection>
+        <url>https://github.com/web-servers/narayana-tomcat</url>
+        <tag>HEAD</tag>
+    </scm>
 </project>

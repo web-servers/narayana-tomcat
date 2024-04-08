@@ -27,7 +27,7 @@ With this option, the test suite relies on an external database to be running an
 All undermentioned examples expect a Tomcat installation pointed to by ```CATALINA_HOME``` env var. Certain users (mandatory) and logging (convenient) settings are also listed:
 
 ```bash
-wget http://www-us.apache.org/dist/tomcat/tomcat-9/v9.0.7/bin/apache-tomcat-9.0.7.zip
+wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.7/bin/apache-tomcat-9.0.7.zip
 unzip apache-tomcat-9.0.7.zip
 export CATALINA_HOME=`pwd`/apache-tomcat-9.0.7/
 
@@ -52,7 +52,7 @@ pushd narayana/tomcat
 ## 1. H2, embedded database
 Run the TS:
 ```bash
-mvn integration-test -Parq-tomcat -Dtomcat.user=arquillian -Dtomcat.pass=arquillian
+mvn integration-test -Parq-tomcat -Dtomcat.user=arquillian -Dtomcat.pass=arquillian -Dtest.db.type=h2
 ```
 See logs, including Tomcat ones:
 ```

@@ -169,7 +169,7 @@ public class TestExecutor {
     }
 
     private boolean doesEntryExist(Connection connection, String entry) throws SQLException, NamingException {
-        String query = "SELECT COUNT(*) FROM test WHERE value='" + entry + "'";
+        String query = "SELECT COUNT(*) FROM test WHERE aColumn='" + entry + "'";
         try {
             Statement statement = connection.createStatement();
             ResultSet result = statement.executeQuery(query);
@@ -203,7 +203,7 @@ public class TestExecutor {
     }
 
     private void createTestTable() throws SQLException, NamingException {
-        String query = "CREATE TABLE IF NOT EXISTS test (value VARCHAR(100))";
+        String query = "CREATE TABLE IF NOT EXISTS test (aColumn VARCHAR(100))";
         Connection connection = null;
 
         try {

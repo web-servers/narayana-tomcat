@@ -35,13 +35,13 @@
     <packaging>pom</packaging>
     <name>Narayana: Tomcat integration</name>
     <properties>
-        <version.org.apache.tomcat>9.0.11</version.org.apache.tomcat>
-        <version.org.jboss.narayana>5.9.0.Final</version.org.jboss.narayana>
-        <version.org.jboss.spec.javax.transaction>1.0.0.Final</version.org.jboss.spec.javax.transaction>
-        <version.org.jboss.logging.jboss-logging>3.2.1.Final</version.org.jboss.logging.jboss-logging>
-        <version.org.jboss.byteman>4.0.17</version.org.jboss.byteman>
-        <version.org.jboss.jboss-transaction-spi>7.6.0.Final</version.org.jboss.jboss-transaction-spi>
-        <version.org.jboss.resteasy>3.1.4.Final</version.org.jboss.resteasy>
+        <version.org.apache.tomcat>9.0.89</version.org.apache.tomcat>
+        <version.org.jboss.narayana>7.0.1.Final</version.org.jboss.narayana>
+        <version.org.jboss.spec.javax.transaction>1.1.0.Final</version.org.jboss.spec.javax.transaction>
+        <version.org.jboss.logging.jboss-logging>3.6.0.Final</version.org.jboss.logging.jboss-logging>
+        <version.org.jboss.byteman>4.0.22</version.org.jboss.byteman>
+        <version.org.jboss.jboss-transaction-spi>7.6.1.Final</version.org.jboss.jboss-transaction-spi>
+        <version.org.jboss.resteasy>3.15.6.Final</version.org.jboss.resteasy>
         <version.org.jboss.arquillian.core>1.1.7.Final</version.org.jboss.arquillian.core>
         <version.org.jboss.arquillian.container.tomcat>1.1.0.Final</version.org.jboss.arquillian.container.tomcat>
         <version.org.jboss.shrinkwrap.resolver>2.2.2</version.org.jboss.shrinkwrap.resolver>
@@ -49,11 +49,11 @@
         <version.javax.servlet>3.0.1</version.javax.servlet>
         <version.com.h2database>2.2.224</version.com.h2database>
         <version.postgresql>42.7.3</version.postgresql>
-        <version.com.github.docker-java>3.0.14</version.com.github.docker-java>
+        <version.com.github.docker-java>3.3.6</version.com.github.docker-java>
         <version.org.sonatype.plugins.nexus-staging-maven-plugin>1.6.6</version.org.sonatype.plugins.nexus-staging-maven-plugin>
         <version.checkstyle>8.5</version.checkstyle>
         <version.org.wildfly.checkstyle-config>1.0.7.Final</version.org.wildfly.checkstyle-config>
-        <version.org.jacoco>0.8.7</version.org.jacoco>
+        <version.org.jacoco>0.8.12</version.org.jacoco>
 
         <!-- Checkstyle configuration -->
         <linkXRef>false</linkXRef>

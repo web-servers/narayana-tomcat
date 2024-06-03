@@ -16,7 +16,7 @@
     <packaging>pom</packaging>
     <name>Narayana: Tomcat integration</name>
     <properties>
-        <version.org.apache.tomcat>9.0.13</version.org.apache.tomcat>
+        <version.org.apache.tomcat>9.0.89</version.org.apache.tomcat>
         <version.org.jboss.narayana>5.9.11.Final</version.org.jboss.narayana>
         <version.org.jboss.spec.javax.transaction>1.0.0.Final</version.org.jboss.spec.javax.transaction>
         <version.org.jboss.logging.jboss-logging>3.2.1.Final</version.org.jboss.logging.jboss-logging>

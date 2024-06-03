@@ -27,9 +27,9 @@ With this option, the test suite relies on an external database to be running an
 All undermentioned examples expect a Tomcat installation pointed to by ```CATALINA_HOME``` env var. Certain users (mandatory) and logging (convenient) settings are also listed:
 
 ```bash
-wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.7/bin/apache-tomcat-9.0.7.zip
-unzip apache-tomcat-9.0.7.zip
-export CATALINA_HOME=`pwd`/apache-tomcat-9.0.7/
+wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.zip
+unzip apache-tomcat-9.0.89.zip
+export CATALINA_HOME=`pwd`/apache-tomcat-9.0.89/
 
 cat <<EOT >> ${CATALINA_HOME}/conf/logging.properties
 org.apache.tomcat.tomcat-jdbc.level = ALL
@@ -148,7 +148,7 @@ For some database systems, different options might be required. Please see the c
 # Jenkins job
 
 See Jenkins job: [https://ci.modcluster.io/job/narayana-tomcat/](https://ci.modcluster.io/job/narayana-tomcat/). There are three axis:
- * Tomcat version, 9.0.7
+ * Tomcat version, 9.0.89
  * Database, h2, postgres:9.4 and postgres:10
  * JDK, openjdk-8 and oraclejdk-9
  
@@ -163,9 +163,9 @@ The test application the test suite generated is stored for you in ```narayana/t
 
 ## Download and configure Tomcat
 ```bash
-wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.7/bin/apache-tomcat-9.0.7.zip
-unzip apache-tomcat-9.0.7.zip
-export CATALINA_HOME=`pwd`/apache-tomcat-9.0.7/
+wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.zip
+unzip apache-tomcat-9.0.89.zip
+export CATALINA_HOME=`pwd`/apache-tomcat-9.0.89/
 
 cat <<EOT >> ${CATALINA_HOME}/conf/logging.properties
 org.apache.tomcat.tomcat-jdbc.level = ALL

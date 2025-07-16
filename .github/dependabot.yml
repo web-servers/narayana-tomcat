@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "01:00"
+
+  # for alternative branch
+  - package-ecosystem: "maven"
+    target-branch: "jws-narayana-tests"
+    directory: "/"
+    ignore:
+      - dependency-name: org.jboss.narayana
+        versions:
+          - "> 5"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "01:00"
+
